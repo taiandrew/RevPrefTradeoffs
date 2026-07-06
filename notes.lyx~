@@ -252,7 +252,7 @@ For
  define the relaxed direct revealed relation
 \begin_inset Formula 
 \[
-x^{j}R^{e}x^{k}\iff p^{j}\cdot x^{k}\leq ep^{j}\cdot x^{j}
+x^{j}R^{e}x^{k}\iff p^{j}\cdot x^{j}\leq ep^{j}\cdot x^{k}
 \]
 
 \end_inset
