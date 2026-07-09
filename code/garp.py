@@ -12,7 +12,8 @@ import pandas as pd
 
 
 def cross_expenditure(quantities: pd.DataFrame, prices: pd.DataFrame) -> np.ndarray:
-    """Return the N x N cross-expenditure matrix E with E[t, s] = p^t . x^s.
+    """
+    Return the N x N cross-expenditure matrix E with E[t, s] = p^t . x^s.
 
     Row t prices every observed bundle at observation t's prices, so the
     diagonal E[t, t] is observed expenditure at t.
@@ -37,7 +38,8 @@ def cross_expenditure(quantities: pd.DataFrame, prices: pd.DataFrame) -> np.ndar
 
 
 def satisfies_garp(E: np.ndarray, idx=None, efficiency: float = 1.0) -> bool:
-    """Check whether the observations ``idx`` (default: all) satisfy GARP.
+    """
+    Check whether the observations ``idx`` (default: all) satisfy GARP.
 
     Direct relations on the subset: x^t R0 x^s iff e*E[t,t] >= E[t,s], and
     x^t P0 x^s iff e*E[t,t] > E[t,s], where e is the Afriat ``efficiency``
