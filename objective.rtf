@@ -11,7 +11,6 @@
 - The code will read in data into two dataframes with N rows representing consumption data\
 	- Purchase bundles: j columns, each of which is a product; entries represent quantity purchased\
 	- Prices: j columns; entries represent prices the corresponding bundle was purchased at\
-- The data is not available yet. We\'92ll handle that later.\
 \
 1. clusteringLowerBd.py implements a function to run ONE iteration of the practical lower bound algorithm of C&P.\
 	- Input: the two consumption data dfs\
@@ -26,6 +25,11 @@
 3. ccei.py implements a function to calculate the CCEI for given consumption data\
 	- Input: two consumption data dfs in the same format, but perhaps with fewer than N observations\
 	- Output: float; calculated CCEI\
+\
+4. quaids.py: implements a quadratic almost ideal demand system estimation in the manner of Crawford and Pendakur. Note that this should be estimated using SUR, I think.\
+	- inputs: two consumption data dfs in the same format, also perhaps with fewer than N observations.\
+	- ouput: the model object?\
+	- print: model summary\
 \
 4. main.py runs the analysis. Let\'92s just import the above functions for now, but not code up the actual body.\
 \

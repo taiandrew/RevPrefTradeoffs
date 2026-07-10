@@ -68,7 +68,7 @@ faps_fahevent_puf = pd.read_csv(
 
 keep_cols = ['hhnum', 'eventid',
              'date', 'daynum' ,'startmon',
-             'placeid', 'placecateg', 'placecateg_ers', 'placetype',
+             'placeid', 'placecateg', 'placecateg_ers', 'placetype', 'placesnaptype',
              'totalpaid']
 
 faps_fahevent_puf = faps_fahevent_puf[keep_cols]
