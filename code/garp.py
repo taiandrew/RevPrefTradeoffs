@@ -12,7 +12,8 @@ import pandas as pd
 
 
 def cross_expenditure(quantities: pd.DataFrame, prices: pd.DataFrame) -> np.ndarray:
-    """Return the N x N cross-expenditure matrix E with E[t, s] = p^t . x^s.
+    """
+    Return the N x N cross-expenditure matrix E with E[t, s] = p^t . x^s.
 
     Row t prices every observed bundle at observation t's prices, so the
     diagonal E[t, t] is observed expenditure at t.
@@ -36,17 +37,21 @@ def cross_expenditure(quantities: pd.DataFrame, prices: pd.DataFrame) -> np.ndar
     return p @ x.T
 
 
-def satisfies_garp(E: np.ndarray, idx=None) -> bool:
-    """Check whether the observations ``idx`` (default: all) satisfy GARP.
+def satisfies_garp(E: np.ndarray, idx=None, efficiency: float = 1.0) -> bool:
+    """
+    Check whether the observations ``idx`` (default: all) satisfy GARP.
 
-    Direct relations on the subset: x^t R0 x^s iff E[t,t] >= E[t,s], and
-    x^t P0 x^s iff E[t,t] > E[t,s]. R is the transitive closure of R0
-    (Warshall). GARP holds iff there is no pair with x^t R x^s and x^s P0 x^t.
+    Direct relations on the subset: x^t R0 x^s iff e*E[t,t] >= E[t,s], and
+    x^t P0 x^s iff e*E[t,t] > E[t,s], where e is the Afriat ``efficiency``
+    level (e = 1 gives standard GARP; e < 1 relaxes the relations by treating
+    only bundles costing at most an e-fraction of observed expenditure as
+    affordable). R is the transitive closure of R0 (Warshall). GARP holds iff
+    there is no pair with x^t R x^s and x^s P0 x^t.
     """
     if idx is not None:
         E = E[np.ix_(idx, idx)]
 
-    diag = np.diag(E)[:, None]
+    diag = efficiency * np.diag(E)[:, None]
     R = E <= diag  # R0
     P0 = E < diag
 
