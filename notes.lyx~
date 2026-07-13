@@ -897,24 +897,7 @@ Monotonically decreasing from 1 type to
 Algorithm III
 \end_layout
 
-\begin_layout Itemize
-Loss as before,
- but defined as the Varian efficiency vector / average Varian index
-\end_layout
-
-\begin_layout Itemize
-Each observation (household) has its own 
-\begin_inset Formula $e_{t}$
-\end_inset
-
- shrinkage factor.
-\begin_inset Formula 
-\[
-L_{Varian}(G)=\sum_{i\in G}(1-e_{i})
-\]
-
-\end_inset
-
+\begin_layout Standard
 
 \end_layout
 
