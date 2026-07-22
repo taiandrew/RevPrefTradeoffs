@@ -1,0 +1,2766 @@
+#LyX 2.4 created this file. For more info see https://www.lyx.org/
+\lyxformat 620
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\usepackage{hyperref}
+\hypersetup{colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue}}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\end_preamble
+\use_default_options true
+\begin_modules
+theorems-ams-bytype
+theorems-ams-extended-bytype
+\end_modules
+\maintain_unincluded_children no
+\language american
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\spacing other 1.2
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content true
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Mostly rational types
+\end_layout
+
+\begin_layout Author
+Andrew Tai
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+US Dept.
+ of War.
+ Contact:
+ 
+\begin_inset CommandInset href
+LatexCommand href
+target "andrew.a.tai@gmail.com"
+type "mailto:"
+literal "false"
+
+\end_inset
+
+.
+ Disclaimer:
+ The views expressed are those of the author and do not reflect the official policy or position of the Department of War or the U.S.
+ Government.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Date
+July 2026
+\end_layout
+
+\begin_layout Abstract
+This paper proposes a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
+ The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
+ in the classical consumer theory sense.
+ From here,
+ types can be combined in a minimally lossy way.
+ I illustrate using household milk purchase data.
+ In the example data,
+ 15 types are required to rationalize the data;
+ however,
+ many of these have few households,
+ and can be merged into other types without significantly harming rationality.
+ My method thus establishes a theory-driven and principled way to describe consumer demand data and the tradeoff between parsimony and heterogeneity.
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Gary Becker famously advocated for an approach to economics embracing assumptions of maximizing behavior,
+ stable preferences,
+ and equilibrium:
+\end_layout
+
+\begin_layout Quote
+The assumption of stable preferences provides a stable foundation for generating predictions about responses to various changes,
+ and prevents the analyst from succumbing to the temptation of simply postulating the required shift in preferences to 'explain' all apparent contradictions to his predictions.
+ 
+\begin_inset CommandInset citation
+LatexCommand citealp
+key "Becker"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Simply,
+ if economics is a science,
+ then unexplained phenomena must not be consistently hand-waved away as unique phenomena.
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "SB97"
+literal "false"
+
+\end_inset
+
+ are even more stark:
+\end_layout
+
+\begin_layout Quote
+Tastes neither change capriciously nor differ importantly between people.
+\end_layout
+
+\begin_layout Standard
+However,
+ this poses a problem for the estimation of consumer behavior,
+ where significant individual heterogeneity is natural.
+ While some of this heterogeneity can be modeled on the consumers' observables (e.g.
+ wealth,
+ demographics,
+ etc.),
+ the majority is an accident of nature.
+\end_layout
+
+\begin_layout Standard
+Given consumption data from a panel of households,
+ the classic approach is to pool the data,
+ and control on household observables if available.
+ An early example,
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "BBL"
+literal "false"
+
+\end_inset
+
+,
+ finds that the approach works well for some categories of purchases but very poorly for others.
+ They apply the (quadratic) almost ideal demand system,
+ which explicitly assumes a representative consumer.
+ More recent models like 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "BLP"
+literal "false"
+
+\end_inset
+
+ allow random coefficients to incorporate individual heterogeneity (among other desiderata).
+ Nevertheless,
+ when households have significant unobservable heterogeneity,
+ the resulting estimates may be imprecise;
+ and point estimates may not accurately describe any households at all.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset citation
+LatexCommand citet
+key "CP"
+literal "false"
+
+\end_inset
+
+ propose to apply revealed preferences,
+ chiefly 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Afriat"
+literal "false"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Varian"
+literal "false"
+
+\end_inset
+
+,
+ to partition households into fully rational types.
+ Afriat's theorem establishes the Generalized Axiom of Revealed Preference (GARP) as a necessary and sufficient condition for a set of consumption data to be generated by a well-behaved utility function 
+\begin_inset Formula $u(x)$
+\end_inset
+
+.
+ Given an observed choice 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ at a price 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+,
+ it must dominate any other affordable choice.
+ The following is an example of a violation:
+\end_layout
+
+\begin_layout Itemize
+Bundle 
+\begin_inset Formula $x_{1}$
+\end_inset
+
+ was chosen at price 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Bundle 
+\begin_inset Formula $x_{2}$
+\end_inset
+
+ was chosen at price 
+\begin_inset Formula $p_{2}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $p_{1}x_{1}\geq p_{1}x_{2}$
+\end_inset
+
+ – that is,
+ 
+\begin_inset Formula $x_{2}$
+\end_inset
+
+ was affordable when 
+\begin_inset Formula $x_{1}$
+\end_inset
+
+ was chosen
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $p_{2}x_{2}\geq p_{2}x_{1}$
+\end_inset
+
+ – that is,
+ 
+\begin_inset Formula $x_{1}$
+\end_inset
+
+ was affordable when 
+\begin_inset Formula $x_{2}$
+\end_inset
+
+ was chosen
+\end_layout
+
+\begin_layout Itemize
+At least one of the inequalities is strict
+\end_layout
+
+\begin_layout Standard
+This violation implies a cycle in preferences,
+ 
+\begin_inset Formula $x_{1}\succeq x_{2}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{2}\succeq x_{1}$
+\end_inset
+
+,
+ with at least one strict.
+ GARP generalizes this idea from 2-cycles to general length.
+\end_layout
+
+\begin_layout Standard
+GARP is usually interpreted as a check on repeated observations from one individual (household).
+ Crawford and Pendakur propose to use GARP to partition household data into rational types.
+ That is,
+ they ask 
+\emph on
+how many distinct utility functions are generating the consumer demand data?
+
+\emph default
+ 
+\end_layout
+
+\begin_layout Standard
+I apply this method to data from the USDA,
+ National Household Food Acquisition and Purchase Survey (FoodAPS).
+ I find that 15 types are necessary to rationalize the 2,167 households.
+ However,
+ many of these types contain very few households.
+ I thus propose to combine this method with ideas in machine learning for classification like hierarchical clustering and KNN.
+ Many groups can be combined while incurring low 
+\begin_inset Quotes eld
+\end_inset
+
+loss
+\begin_inset Quotes erd
+\end_inset
+
+ to rationalizability,
+ calculating loss as either Critical Cost Efficiency Index (CCEI) or the Varian index (cf.
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Afriat73"
+literal "false"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Varian90"
+literal "false"
+
+\end_inset
+
+).
+ Using Varian's rule-of-thumb of 95% rationality as essentially rational,
+ we can reduce the number of types by half.
+ My method thus offers intermediate options between two extremes – assuming all households have the same underlying utility;
+ or requiring full rationality.
+ By sacrificing a modest amount of rationality (interpretable as requiring individual heterogeneity),
+ we require far fewer types.
+\end_layout
+
+\begin_layout Standard
+The next section describes the dataset.
+ Section 3 describes the proposed method to partition the households into groups.
+ Section 4 estimates demand via almost ideal demand system (AIDS).
+ Section 5 concludes.
+\end_layout
+
+\begin_layout Section
+Data
+\end_layout
+
+\begin_layout Standard
+To illustrate my proposed method,
+ I use data from the USDA FoodAPS survey,
+ which was fielded from April 2012 through mid-January 2013.
+ Each participating household reported the foods that household members acquired over a 7-day period.
+ The final analytic sample was 4,826 households.
+ I focus particularly on household milk purchases,
+ partitioned into four types of milk:
+ whole,
+ 2%,
+ 1%,
+ and skim/nonfat milk.
+ Among the survey sample,
+ 2,167 households are observed purchasing any milk;
+ this forms my sample.
+\end_layout
+
+\begin_layout Standard
+For each household,
+ I observe the quantity of each type of milk purchased and the prices at which they were purchased.
+ Prices were generally not recorded for goods not purchased;
+ thus I impute prices when not recorded by the median in the matching category:
+ region,
+ rural / urban status,
+ and store type.
+ While FoodAPS level of observations is a purchase event (e.g.
+ one receipt),
+ I aggregate each household to a weekly sum.
+ Table 1 summarizes the data.
+ Note the extreme outlier shown in the maximum price of whole milk.
+ I chose to leave this observation in the dataset,
+ as the objective of this paper is to illustrate my proposed method,
+ rather than to accurately estimate milk demand.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}[htbp]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Descriptive statistics ($N = 2167$)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{tab:summary_all}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tabular}{lrrrr}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+toprule
+\end_layout
+
+\begin_layout Plain Layout
+
+ & Mean & Min & Max & SD 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{5}{l}{
+\backslash
+textit{Budget shares} } 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad Whole & 0.29 & 0.00 & 1.00 & 0.43 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad 2
+\backslash
+% & 0.46 & 0.00 & 1.00 & 0.47 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad 1
+\backslash
+% & 0.10 & 0.00 & 1.00 & 0.29 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad Skim & 0.13 & 0.00 & 1.00 & 0.33 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{5}{l}{
+\backslash
+textit{Total expenditure (
+\backslash
+$)}} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad Total expenditure & 4.97 & 0.30 & 88.47 & 4.30 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{5}{l}{
+\backslash
+textit{Prices (
+\backslash
+$ per 100 g)} } 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad Whole & 0.14 & 0.02 & 14.36 & 0.53 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad 2
+\backslash
+% & 0.10 & 0.02 & 0.79 & 0.06 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad 1
+\backslash
+% & 0.10 & 0.01 & 0.75 & 0.06 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+quad Skim & 0.11 & 0.02 & 1.12 & 0.08 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bottomrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tabular}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{table}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This paper does not seek to argue that estimating household milk demand is important in and of itself.
+ Rather,
+ this setting readily illustrates the issues that this paper seeks to note.
+ While it is entirely possible to estimate a demand model on household milk purchases,
+ the presence of individual heterogeneity makes this difficult.
+ There may be individual heterogeneity by taste for milk (e.g.
+ whole vs.
+ skim) or by price sensitivity (e.g.
+ some households are more price sensitive,
+ or more likely to substitute between milk types).
+ Even with household characteristics,
+ it may be difficult to describe this heterogeneity – much of it is likely due to unobservable taste.
+\end_layout
+
+\begin_layout Section
+Method
+\end_layout
+
+\begin_layout Standard
+I now turn to a proposed method for partitioning households into distinct types.
+ Based on the observed consumption data,
+ the initial exercise prescribed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "CP"
+literal "false"
+
+\end_inset
+
+ is to partition households into groups,
+ each of which satisfies GARP.
+ That is,
+ each group can be treated as having a single utility function.
+ This enables us to interpret the errors from any demand estimation model purely as model misspecification error rather than individual heterogeneity.
+\end_layout
+
+\begin_layout Standard
+The core of this method is Afriat's theorem.
+\end_layout
+
+\begin_layout Theorem
+A set of consumer demand data 
+\begin_inset Formula $\{(x_{i},p_{i})\}_{i\in N}$
+\end_inset
+
+ can be described by a maximization of a utility function if and only if it satisfies the generalized axiom of revealed preference (GARP).
+\end_layout
+
+\begin_layout Standard
+I refer the reader to 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Afriat"
+literal "false"
+
+\end_inset
+
+ for details (or any number of lecture notes available online;
+ e.g.
+ by 
+\begin_inset CommandInset href
+LatexCommand href
+name "Echenique"
+target "https://eml.berkeley.edu/~fechenique/lecture_notes/echenique_GE.pdf"
+literal "false"
+
+\end_inset
+
+).
+ Crawford and Pendakur propose an infeasible algorithm,
+ Algorithm 1,
+ to partition the data into the fewest number of groups,
+ each of which satisfies GARP.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}[H]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Exact minimum-type partition}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{alg:exact-types}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Require Observations $I=
+\backslash
+{1,
+\backslash
+ldots,n
+\backslash
+}$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Ensure Minimum number of types $N^
+\backslash
+star$ and a rationalizing partition
+\end_layout
+
+\begin_layout Plain Layout
+
+        $
+\backslash
+mathcal G^
+\backslash
+star$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{$K=1,
+\backslash
+ldots,n$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{each partition
+\end_layout
+
+\begin_layout Plain Layout
+
+          $
+\backslash
+mathcal G=
+\backslash
+{G_1,
+\backslash
+ldots,G_K
+\backslash
+}$ of $I$ into $K$ nonempty sets}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$G_k$ satisfies GARP for every $k=1,
+\backslash
+ldots,K$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $N^
+\backslash
+star
+\backslash
+gets K$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+mathcal G^
+\backslash
+star
+\backslash
+gets
+\backslash
+mathcal G$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State 
+\backslash
+Return $(N^
+\backslash
+star,
+\backslash
+mathcal G^
+\backslash
+star)$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This algorithm is infeasible,
+ since it requires checking GARP for every partition of the dataset.
+ Thus it requires checking GARP a combinatorial number of times;
+ even though GARP itself can be checked in 
+\begin_inset Formula $O(N^{3})$
+\end_inset
+
+ time.
+\end_layout
+
+\begin_layout Standard
+Algorithm 2 calculates a feasible upper bound on the number of types.
+ The observations are first randomly ordered.
+ The first observation forms the first group.
+ The next observation is checked for GARP consistency with the first group.
+ If they are consistent,
+ then it is added to this group;
+ otherwise it is added to a new group.
+ Each subsequent observation undergoes the same procedure.
+ The entire process can be repeated multiple times,
+ and the best (smallest) partition is chosen.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}[H]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Crawford--Pendakur upper-bound algorithm}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{alg:cp-upper-bound}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Require Observations $I=
+\backslash
+{1,
+\backslash
+ldots,n
+\backslash
+}$ and number of restarts $R$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Ensure Upper bound $
+\backslash
+bar N$ and a rationalizing partition
+\end_layout
+
+\begin_layout Plain Layout
+
+        $
+\backslash
+bar{
+\backslash
+mathcal G}$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State $
+\backslash
+bar N 
+\backslash
+gets 
+\backslash
+infty$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{$r=1,
+\backslash
+ldots,R$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State Draw a random ordering $(i_1,
+\backslash
+ldots,i_n)$ of $I$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+mathcal G 
+\backslash
+gets 
+\backslash
+varnothing$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$t=1,
+\backslash
+ldots,n$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+mathcal C 
+\backslash
+gets
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+{G
+\backslash
+in
+\backslash
+mathcal G:
+\end_layout
+
+\begin_layout Plain Layout
+
+        G
+\backslash
+cup
+\backslash
+{i_t
+\backslash
+}
+\backslash
+text{ satisfies GARP}
+\backslash
+}$
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+If{$
+\backslash
+mathcal C
+\backslash
+neq
+\backslash
+varnothing$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State Choose
+\end_layout
+
+\begin_layout Plain Layout
+
+            $G^
+\backslash
+star
+\backslash
+in
+\backslash
+arg
+\backslash
+max_{G
+\backslash
+in
+\backslash
+mathcal C}|G|$
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State Replace $G^
+\backslash
+star$ by
+\end_layout
+
+\begin_layout Plain Layout
+
+            $G^
+\backslash
+star
+\backslash
+cup
+\backslash
+{i_t
+\backslash
+}$ in $
+\backslash
+mathcal G$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+Else
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State $
+\backslash
+mathcal G
+\backslash
+gets
+\backslash
+mathcal G
+\backslash
+cup
+\backslash
+{
+\backslash
+{i_t
+\backslash
+}
+\backslash
+}$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$|
+\backslash
+mathcal G|<
+\backslash
+bar N$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+bar N
+\backslash
+gets|
+\backslash
+mathcal G|$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+bar{
+\backslash
+mathcal G}
+\backslash
+gets
+\backslash
+mathcal G$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State 
+\backslash
+Return $(
+\backslash
+bar N,
+\backslash
+bar{
+\backslash
+mathcal G})$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 1 shows Algorithm 2 applied to the FoodAPS data.
+ Over half of households can be described by a single utility function;
+ there are 5-10 sizable groups,
+ and the remainder are very small.
+ Table 2 shows summary statistics for milk purchases by group;
+ the descriptive statistics already illustrate significant heterogeneity in behavior across types.
+ For example,
+ Type 1 favors whole milk,
+ Type 2 favors 2% milk,
+ and Type 3 almost exclusively purchases 1% milk.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement document
+alignment document
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Partition of FoodAPS households into fully rational types
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphs/group_sizes.png
+	lyxscale 20
+	width 4.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}[htbp]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Descriptive statistics by group}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{tab:groupshares_all}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tabular}{lrrrrr}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+toprule
+\end_layout
+
+\begin_layout Plain Layout
+
+ & $N$ & Whole & 2
+\backslash
+% & 1
+\backslash
+% & Skim 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+Pooled & 2167 & 0.29 & 0.47 & 0.10 & 0.14 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 1 & 1125 & 0.23 & 0.57 & 0.09 & 0.12 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 2 & 302 & 0.62 & 0.13 & 0.14 & 0.11 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 3 & 259 & 0.03 & 0.95 & 0.02 & 0.00 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 4 & 180 & 0.44 & 0.10 & 0.17 & 0.29 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 5 & 78 & 0.40 & 0.07 & 0.11 & 0.42 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 6 & 47 & 0.20 & 0.62 & 0.03 & 0.16 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 7 & 39 & 0.88 & 0.07 & 0.02 & 0.03 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 8 & 31 & 0.02 & 0.03 & 0.00 & 0.95 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 9 & 29 & 0.59 & 0.03 & 0.34 & 0.04 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 10 & 29 & 0.04 & 0.94 & 0.00 & 0.02 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 11 & 28 & 0.01 & 0.11 & 0.68 & 0.19 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 12 & 9 & 0.04 & 0.05 & 0.86 & 0.05 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 13 & 7 & 0.84 & 0.04 & 0.00 & 0.12 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 14 & 2 & 0.00 & 0.80 & 0.00 & 0.20 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 15 & 2 & 0.00 & 0.00 & 0.73 & 0.27 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bottomrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tabular}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{table}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Motivated by this pattern,
+ we may ask how much we gain in terms of 
+\begin_inset Quotes eld
+\end_inset
+
+rationality
+\begin_inset Quotes erd
+\end_inset
+
+ by having these small groups.
+ Stated another way,
+ do we lose much by merging some groups into others?
+ Doing comes with the practical advantage of allowing us to estimate fewer demand models;
+ and the philosophical advantage of respecting Stigler's and Becker's charge of limiting capricious changes in taste.
+\end_layout
+
+\begin_layout Standard
+Of course,
+ when we combine groups,
+ by definition they must become non-rationalizable.
+ That is,
+ treating the households in the combined group as coming from a single utility function means that some of them behave irrationally.
+ A number of indexes exist to quantify the degree of irrationality.
+ In this paper,
+ I use the critical cost efficiency index (CCEI) and the related Varian index.
+ Intuitively,
+ CCEI asks 
+\emph on
+how much would we need to shrink each observed budget before the consumer’s choices become consistent with utility maximization?
+
+\emph default
+ A 
+\begin_inset Formula $CCEI=1$
+\end_inset
+
+ is completely rational;
+ a 
+\begin_inset Formula $CCEI=0.95$
+\end_inset
+
+ is rational after allowing up to 5% of each household's budget to be wasted.
+ 
+\end_layout
+
+\begin_layout Standard
+I now turn to my proposed algorithm for combining groups.
+ We balance the desire for fewer and larger groups with the loss in rationality in each group.
+ For a partition of households 
+\begin_inset Formula $\mathcal{P}=\{G_{1},...,G_{k}\}$
+\end_inset
+
+,
+ for a set of households 
+\begin_inset Formula $G$
+\end_inset
+
+ define the loss of treating all 
+\begin_inset Formula $G$
+\end_inset
+
+ as one type as 
+\begin_inset Formula 
+\[
+L(G)=|G|(1-e_{G})
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $e_{G}$
+\end_inset
+
+ is CCEI of 
+\begin_inset Formula $G$
+\end_inset
+
+.
+ For each pair of groups 
+\begin_inset Formula $G_{a},G_{b}$
+\end_inset
+
+,
+ calculate the incremental merge cost as 
+\begin_inset Formula 
+\[
+L(G_{a}\cup G_{b})-L(G_{a})-L(G_{b}).
+\]
+
+\end_inset
+
+At each step,
+ we merge the two groups with the lowest incremental merge cost.
+ The final product is a curve between summed loss and the number of types,
+ akin to hierarchical clustering or KNN.
+ Greater loss is interpretable as requiring more individual heterogeneity to rationalize the data.
+ Figure 2 shows the curve of loss and types.
+ At 15 types,
+ which fully rationalizes the data,
+ there is 0 loss.
+ Combining all types into one group results in significant loss (that is,
+ significant individual heterogeneity).
+ However,
+ we can reduce the number of types to 8 while maintaining that rationality within type,
+ on average.
+ Informally,
+ it is 
+\emph on
+approximately correct
+\emph default
+ to treat the households as sharing the same utility function.
+ 
+\begin_inset Float figure
+placement document
+alignment document
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Loss - types curve for CCEI
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphs/reduction_avgloss_ccei_all.png
+	lyxscale 40
+	width 4.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I also repeat the analysis for the Varian index,
+ which allows each household to waste an individual amount of its budget,
+ and takes the average.
+ The resulting measure is smoother and less punishing.
+ Figure 3 shows the curve of Varian index loss to number of types.
+ 
+\begin_inset Float figure
+placement document
+alignment document
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Loss - types curve for Varian index
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphs/reduction_avgloss_varian_all.png
+	lyxscale 40
+	width 4.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Demand estimation
+\end_layout
+
+\begin_layout Standard
+Incorporating individual heterogeneity into demand estimation is difficult;
+ see for example 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Matzkin"
+literal "false"
+
+\end_inset
+
+.
+ However,
+ the almost ideal demand system (AIDS) is easy to estimate,
+ at the cost of assuming away individual heterogeneity.
+ The previous section's method offers a principled way to quantify the size of this assumption.
+\end_layout
+
+\begin_layout Standard
+To illustrate,
+ I estimates AIDS models by type.
+ For household 
+\begin_inset Formula $i$
+\end_inset
+
+ and milk type 
+\begin_inset Formula $j$
+\end_inset
+
+,
+ the share equation is 
+\begin_inset Formula 
+\[
+w_{i}^{j}=\alpha_{j}+\sum_{k=1}^{4}\gamma_{jk}\ln p_{i}^{k}+\beta_{j}\ln\left(\frac{x_{i}}{P_{i}}\right)+\varepsilon_{i}^{j}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\[
+\ln P_{i}=\alpha_{0}+\sum_{k}\alpha_{k}\ln p_{i}^{k}+\frac{1}{2}\sum_{k}\sum_{\ell}\gamma_{kl}\ln p_{i}^{k}\ln p_{i}^{l}
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula $w_{i}^{j}$
+\end_inset
+
+ is 
+\begin_inset Formula $i$
+\end_inset
+
+'s share of the milk budget spent on 
+\begin_inset Formula $j$
+\end_inset
+
+,
+ and 
+\begin_inset Formula $p_{i}^{j}$
+\end_inset
+
+ is the price of milk 
+\begin_inset Formula $j$
+\end_inset
+
+ faced by household 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ Prices and expenditures are normalized so that 
+\begin_inset Formula $\ln p^{j}=\ln x=0$
+\end_inset
+
+ at the median household.
+ Restrictions are
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\sum_{k}\alpha_{k}=1$
+\end_inset
+
+ and 
+\begin_inset Formula $\sum_{k}\beta_{k}=0$
+\end_inset
+
+ – expenditure shares over milk categories sum to 1
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\sum_{k}\gamma_{kl}=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $l$
+\end_inset
+
+ – homogeneity of degree zero in prices and total expenditure
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\gamma_{kl}=\gamma_{lk}$
+\end_inset
+
+ – symmetry of the Slutsky matrix
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $\alpha_{j}$
+\end_inset
+
+ are interpreted as predicted budget shares at the median prices and expenditure.
+ 
+\begin_inset Formula $\beta_{j}$
+\end_inset
+
+ is expenditure semi-elasticity of the share,
+ 
+\begin_inset Formula $\partial w_{j}/\partial\ln x$
+\end_inset
+
+;
+ that is,
+ the change in 
+\begin_inset Formula $j$
+\end_inset
+
+'s share of the budget per log change in total milk expenditure.
+ Intuitively,
+ 
+\begin_inset Formula $\beta_{j}>0$
+\end_inset
+
+ implies milk 
+\begin_inset Formula $j$
+\end_inset
+
+ is a luxury,
+ and 
+\begin_inset Formula $\beta_{j}<0$
+\end_inset
+
+ implies it is a necessity.
+ 
+\begin_inset Formula $\gamma_{kl}$
+\end_inset
+
+ is the change in the share of 
+\begin_inset Formula $k$
+\end_inset
+
+ per unit change in the log of the price of 
+\begin_inset Formula $l$
+\end_inset
+
+,
+ 
+\begin_inset Formula $\ln p^{l}$
+\end_inset
+
+,
+ holding real expenditure fixed.
+ 
+\end_layout
+
+\begin_layout Standard
+Table 3 shows AIDS 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ estimates for partition into 8 types (according to the CCEI procedure) as an example.
+ The pooled sample estimates are incorrect on theoretical grounds (since we know we cannot treat all households as sharing a common utility function).
+ Further,
+ in practical terms,
+ the estimates mask considerable heterogeneity.
+ The pooled estimates are unsurprisingly close to the largest type,
+ Type 1.
+ But other large groups show very different behavior in both preferred milk and price responses.
+ For example,
+ Type 3 purchases almost exclusively 2% milk,
+ but shows a modest negative expenditure semi-elasticity for it.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}[htbp]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{AIDS levels and expenditure semi-elasticities by CCEI-reduced type
+\end_layout
+
+\begin_layout Plain Layout
+
+(all households,
+ 8 types).
+ Standard errors in parentheses;
+\end_layout
+
+\begin_layout Plain Layout
+
+0.000 (--) marks a milk type the group never purchases.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{tab:aids_types_all}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tabular}{lrrrrr}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+toprule
+\end_layout
+
+\begin_layout Plain Layout
+
+ & $N$ & Whole & 2
+\backslash
+% & 1
+\backslash
+% & Skim 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{6}{l}{
+\backslash
+textit{Levels},
+ $a^j$} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Pooled & 2167 & 0.288 & 0.471 & 0.100 & 0.141 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.009) & (0.010) & (0.006) & (0.007) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addlinespace
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 1 & 1125 & 0.249 & 0.518 & 0.101 & 0.132 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.012) & (0.014) & (0.008) & (0.009) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 2 & 302 & 0.640 & 0.072 & 0.163 & 0.125 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.027) & (0.017) & (0.019) & (0.018) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 3 & 259 & -0.003 & 0.972 & 0.030 & 0.001 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.011) & (0.015) & (0.009) & (0.002) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 4 & 180 & 0.431 & 0.060 & 0.208 & 0.302 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.033) & (0.017) & (0.029) & (0.030) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 5 & 145 & 0.278 & 0.278 & 0.320 & 0.124 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.026) & (0.021) & (0.024) & (0.016) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 6 & 78 & 0.375 & 0.075 & 0.052 & 0.498 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.038) & (0.027) & (0.028) & (0.053) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 7 & 47 & 0.207 & 0.494 & 0.029 & 0.270 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.027) & (0.038) & (0.021) & (0.030) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 8 & 31 & 0.031 & 0.035 & 0.000 & 0.934 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.021) & (0.032) & -- & (0.039) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{6}{l}{
+\backslash
+textit{Expenditure semi-elasticities},
+ $b^j$} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Pooled & 2167 & -0.002 & 0.014 & 0.017 & -0.029 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.015) & (0.016) & (0.010) & (0.011) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addlinespace
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 1 & 1125 & -0.011 & 0.016 & 0.032 & -0.037 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.020) & (0.024) & (0.013) & (0.016) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 2 & 302 & 0.042 & 0.233 & -0.236 & -0.039 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.051) & (0.031) & (0.035) & (0.033) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 3 & 259 & 0.038 & -0.050 & 0.008 & 0.004 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.010) & (0.014) & (0.009) & (0.002) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 4 & 180 & -0.071 & 0.154 & 0.048 & -0.131 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.037) & (0.019) & (0.031) & (0.033) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 5 & 145 & 0.051 & -0.003 & -0.040 & -0.008 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.037) & (0.030) & (0.035) & (0.022) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 6 & 78 & -0.348 & 0.094 & 0.281 & -0.027 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.056) & (0.040) & (0.044) & (0.074) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 7 & 47 & 0.205 & 0.105 & -0.012 & -0.298 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.035) & (0.048) & (0.024) & (0.040) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 8 & 31 & 0.008 & 0.027 & 0.000 & -0.036 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.020) & (0.034) & -- & (0.039) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bottomrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tabular}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{table}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Conclusion
+\end_layout
+
+\begin_layout Standard
+I propose a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
+ The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
+ in the classical consumer theory sense.
+ From here,
+ types can be combined in a minimally lossy way.
+\end_layout
+
+\begin_layout Standard
+In the example data,
+ 15 types are required to rationalize household milk purchases;
+ however,
+ many of these have few households,
+ and can be merged into other types without significantly harming rationality.
+ My method thus establishes a theory-driven and principled way to describe consumer demand data and the tradeoff between parsimony and heterogeneity.
+ This matters in practice:
+ application of AIDS models shows significant heterogeneity between household types.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Afriat(1967)"
+key "Afriat"
+literal "false"
+
+\end_inset
+
+Afriat,
+ S.N.,
+ 1967.
+ The construction of utility functions from expenditure data.
+ International economic review,
+ 8(1),
+ pp.67-77.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Afriat(1973)"
+key "Afriat73"
+literal "false"
+
+\end_inset
+
+Afriat,
+ S.N.,
+ 1973.
+ On a system of inequalities in demand analysis:
+ an extension of the classical method.
+ International economic review,
+ pp.460-472.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Banks, Blundell, and Lewbell(1997)"
+key "BBL"
+literal "false"
+
+\end_inset
+
+Banks,
+ J.,
+ Blundell,
+ R.
+ and Lewbel,
+ A.,
+ 1997.
+ Quadratic Engel curves and consumer demand.
+ Review of Economics and statistics,
+ 79(4),
+ pp.527-539.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Becker(1976)"
+key "Becker"
+literal "false"
+
+\end_inset
+
+Becker,
+ G.S.,
+ 1976.
+ The economic approach to human behavior (Vol.
+ 803).
+ University of Chicago press.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Berry, Levinsohn, and Pakes(2004)"
+key "BLP"
+literal "false"
+
+\end_inset
+
+Berry,
+ S.,
+ Levinsohn,
+ J.
+ and Pakes,
+ A.,
+ 2004.
+ Differentiated products demand systems from a combination of micro and macro data:
+ The new car market.
+ Journal of political Economy,
+ 112(1),
+ pp.68-105.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Crawford and Pendakur(2013)"
+key "CP"
+literal "false"
+
+\end_inset
+
+Crawford,
+ I.
+ and Pendakur,
+ K.,
+ 2013.
+ How many types are there?.
+ The Economic Journal,
+ 123(567),
+ pp.77-95.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Deaton and Muellbauer(1980)"
+key "DM80"
+literal "false"
+
+\end_inset
+
+Deaton,
+ A.
+ and Muellbauer,
+ J.,
+ 1980.
+ An almost ideal demand system.
+ The American Economic Review,
+ 70(3),
+ pp.312-326.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Matzkin(2003)"
+key "Matzkin"
+literal "false"
+
+\end_inset
+
+Matzkin,
+ R.L.,
+ 2003.
+ Nonparametric estimation of nonadditive random functions.
+ Econometrica,
+ 71(5),
+ pp.1339-1375.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Stigler and Becker(1977)"
+key "SB97"
+literal "false"
+
+\end_inset
+
+Stigler,
+ G.J.
+ and Becker,
+ G.S.,
+ 1977.
+ De gustibus non est disputandum.
+ The american economic review,
+ 67(2),
+ pp.76-90.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Varian(1982)"
+key "Varian"
+literal "false"
+
+\end_inset
+
+Varian,
+ H.R.,
+ 1982.
+ The nonparametric approach to demand analysis.
+ Econometrica:
+ Journal of the Econometric Society,
+ pp.945-973.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "Varian(1990)"
+key "Varian90"
+literal "false"
+
+\end_inset
+
+Varian,
+ H.R.,
+ 1990.
+ Goodness-of-fit in optimizing models.
+ Journal of Econometrics,
+ 46(1-2),
+ pp.125-140.
+\end_layout
+
+\end_body
+\end_document
