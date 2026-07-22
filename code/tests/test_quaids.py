@@ -89,6 +89,36 @@ def test_aids_special_case():
     np.testing.assert_allclose(res.lambda_, 0, atol=0.01)
 
 
+def test_aids_mode():
+    # quadratic=False forces lambda == 0 exactly and recovers the other
+    # parameters on lambda=0 data, matching the QUAIDS fit closely
+    quantities, prices = simulate(lam=np.zeros(3), seed=3)
+    res = quaids(quantities, prices, quadratic=False)
+    assert not res.quadratic
+    assert (res.lambda_ == 0).all()
+    assert (res.lambda_se == 0).all()
+    np.testing.assert_allclose(res.alpha, ALPHA, atol=0.01)
+    np.testing.assert_allclose(res.beta, BETA, atol=0.01)
+    np.testing.assert_allclose(res.gamma, GAMMA, atol=0.02)
+    np.testing.assert_allclose(res.fitted.sum(axis=1), 1, atol=1e-10)
+    assert 'lambda' not in res.summary()
+
+
+def test_supplied_medians_match_default():
+    # Passing the data's own medians reproduces the default normalisation
+    quantities, prices = simulate(n=400, seed=8)
+    x = (prices * quantities).sum(axis=1)
+    default = quaids(quantities, prices)
+    supplied = quaids(quantities, prices,
+                      price_medians=prices.median(), exp_median=x.median())
+    np.testing.assert_allclose(default.alpha, supplied.alpha, atol=1e-9)
+    np.testing.assert_allclose(default.gamma, supplied.gamma, atol=1e-9)
+    # A different constraint shifts the level coefficients (alpha)
+    shifted = quaids(quantities, prices,
+                     price_medians=prices.median() * 1.5, exp_median=x.median())
+    assert not np.allclose(default.alpha, shifted.alpha, atol=1e-3)
+
+
 def test_validation_errors():
     quantities, prices = simulate(n=50, seed=5)
     with pytest.raises(ValueError):

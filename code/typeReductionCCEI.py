@@ -1,11 +1,14 @@
-"""Type reduction: the trade-off between types and rationalizability loss.
+"""CCEI-based type reduction: the trade-off between types and
+rationalizability loss, with loss measured by the common-multiplier CCEI.
 
 Implements "Algorithm for type reduction II" from notes.lyx. For a set of
 households G, the loss of treating all of G as one preference type is
 
     L(G) = |G| * (1 - e_G),
 
-where e_G is the CCEI of pooling G's observations. The total loss of a
+where e_G is the CCEI (Afriat efficiency: one common multiplier for the
+whole group) of pooling G's observations. typeReductionVarian.py runs the
+same algorithm under the per-observation Varian loss. The total loss of a
 partition is the sum of its group losses. Starting from a fully rationalizing
 partition P_K (each group satisfies GARP, so total loss is 0), the algorithm
 greedily merges the pair of groups with the smallest incremental cost
@@ -54,9 +57,10 @@ def _ccei_idx(E: np.ndarray, idx: np.ndarray) -> float:
     return float(bounds[lo + 1])
 
 
-def type_reduction(quantities: pd.DataFrame, prices: pd.DataFrame,
-                   partition: pd.Series):
-    """Greedily merge the groups of ``partition`` down to one type.
+def type_reduction_ccei(quantities: pd.DataFrame, prices: pd.DataFrame,
+                        partition: pd.Series):
+    """Greedily merge the groups of ``partition`` down to one type,
+    with group loss measured by the CCEI.
 
     ``partition`` holds integer group labels indexed like ``quantities``
     (e.g. one column of milk_partitions); NaN marks households outside the

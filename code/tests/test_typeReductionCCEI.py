@@ -1,6 +1,6 @@
-"""Sanity checks for the type-reduction algorithm.
+"""Sanity checks for the CCEI-based type-reduction algorithm.
 
-Run with ``python tests/test_typeReduction.py`` (from ``code/``) or
+Run with ``python tests/test_typeReductionCCEI.py`` (from ``code/``) or
 ``pytest tests/``.
 """
 
@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from ccei import ccei
 from garp import cross_expenditure
-from typeReduction import _ccei_idx, type_reduction
+from typeReductionCCEI import _ccei_idx, type_reduction_ccei
 from test_clustering import TWO_BLOCKS
 
 
@@ -31,7 +31,7 @@ def test_ccei_idx_matches_ccei():
 def test_two_blocks_reduction():
     x, p = TWO_BLOCKS
     partition = pd.Series([1, 1, 2, 2], index=x.index)
-    parts, curve = type_reduction(x, p, partition)
+    parts, curve = type_reduction_ccei(x, p, partition)
 
     # k=2 is the fully rationalizing start: zero loss, labels as given
     assert curve.loc[2, 'total_loss'] == 0.0
@@ -54,7 +54,7 @@ def test_curve_and_partition_properties():
     # Singleton groups are trivially GARP-consistent
     partition = pd.Series(np.arange(1, n + 1), index=x.index)
 
-    parts, curve = type_reduction(x, p, partition)
+    parts, curve = type_reduction_ccei(x, p, partition)
 
     assert curve.loc[n, 'total_loss'] == 0.0
     # Weakly increasing loss as types are removed (index runs K..1)
@@ -74,7 +74,7 @@ def test_curve_and_partition_properties():
 def test_nan_households_stay_nan():
     x, p = TWO_BLOCKS
     partition = pd.Series([1, 1, 2, np.nan], index=x.index)
-    parts, curve = type_reduction(x, p, partition)
+    parts, curve = type_reduction_ccei(x, p, partition)
     assert parts.index.equals(x.index)
     assert parts.loc[3].isna().all()
     assert parts.loc[[0, 1, 2]].notna().all().all()
