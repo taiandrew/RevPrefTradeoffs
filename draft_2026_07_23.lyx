@@ -770,16 +770,136 @@ literal "false"
  This enables us to interpret the errors from any demand estimation model purely as model misspecification error rather than individual heterogeneity.
 \end_layout
 
+\begin_layout Definition
+Let 
+\begin_inset Formula $\{(x_{i},p_{i})\}_{i\in N}$
+\end_inset
+
+ be observed consumption bundles and prices.
+ Bundle 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ is 
+\emph on
+directly revealed preferred
+\emph default
+ to a bundle 
+\begin_inset Formula $x$
+\end_inset
+
+,
+ written 
+\begin_inset Formula $x_{i}R^{0}x$
+\end_inset
+
+,
+ if 
+\begin_inset Formula $p_{i}\cdot x_{i}\geq p_{i}\cdot x$
+\end_inset
+
+;
+ it is 
+\emph on
+strictly directly revealed preferred
+\emph default
+,
+ 
+\begin_inset Formula $x_{i}P^{0}x$
+\end_inset
+
+,
+ if 
+\begin_inset Formula $p_{i}\cdot x_{i}>p_{i}\cdot x$
+\end_inset
+
+.
+ The revealed preference relation 
+\begin_inset Formula $R$
+\end_inset
+
+ is the transitive closure of 
+\begin_inset Formula $R^{0}$
+\end_inset
+
+ over the observed bundles.
+\end_layout
+
+\begin_layout Definition
+The data satisfy the 
+\emph on
+generalized axiom of revealed preference
+\emph default
+ (GARP) if for all 
+\begin_inset Formula $i,j\in N$
+\end_inset
+
+:
+ 
+\begin_inset Formula $x_{i}Rx_{j}$
+\end_inset
+
+ implies not 
+\begin_inset Formula $x_{j}P^{0}x_{i}$
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Standard
 The core of this method is Afriat's theorem.
 \end_layout
 
 \begin_layout Theorem
-A set of consumer demand data 
+For a set of consumer demand data 
 \begin_inset Formula $\{(x_{i},p_{i})\}_{i\in N}$
 \end_inset
 
- can be described by a maximization of a utility function if and only if it satisfies the generalized axiom of revealed preference (GARP).
+,
+ the following are equivalent:
+ (i) there exists a continuous,
+ concave,
+ strictly increasing utility function 
+\begin_inset Formula $u$
+\end_inset
+
+ that rationalizes the data,
+ i.e.
+ 
+\begin_inset Formula $u(x_{i})\geq u(x)$
+\end_inset
+
+ for every 
+\begin_inset Formula $i$
+\end_inset
+
+ and every bundle 
+\begin_inset Formula $x$
+\end_inset
+
+ with 
+\begin_inset Formula $p_{i}\cdot x\leq p_{i}\cdot x_{i}$
+\end_inset
+
+;
+ (ii) the data satisfy GARP;
+ (iii) there exist numbers 
+\begin_inset Formula $U_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda_{i}>0$
+\end_inset
+
+ such that 
+\begin_inset Formula $U_{j}\leq U_{i}+\lambda_{i}p_{i}\cdot(x_{j}-x_{i})$
+\end_inset
+
+ for all 
+\begin_inset Formula $i,j\in N$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -1727,6 +1847,49 @@ how much would we need to shrink every observed budget before the consumer’s c
  so is a gentler measure.
 \end_layout
 
+\begin_layout Definition
+For 
+\begin_inset Formula $e\in[0,1]$
+\end_inset
+
+,
+ define the relaxed relations 
+\begin_inset Formula $x_{i}R_{e}^{0}x$
+\end_inset
+
+ if 
+\begin_inset Formula $e\,p_{i}\cdot x_{i}\geq p_{i}\cdot x$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{i}P_{e}^{0}x$
+\end_inset
+
+ if 
+\begin_inset Formula $e\,p_{i}\cdot x_{i}>p_{i}\cdot x$
+\end_inset
+
+,
+ with 
+\begin_inset Formula $R_{e}$
+\end_inset
+
+ the transitive closure of 
+\begin_inset Formula $R_{e}^{0}$
+\end_inset
+
+.
+ The 
+\emph on
+critical cost efficiency index
+\emph default
+ is 
+\begin_inset Formula $CCEI=\sup\{e\in[0,1]:\text{the data satisfy GARP under }(R_{e},P_{e}^{0})\}$
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Standard
 I now turn to my proposed algorithm,
  which produces a schedule between the number of types and rationality.
@@ -2217,7 +2380,7 @@ and
 \begin_inset Formula $\ln p^{j}=\ln x=0$
 \end_inset
 
- at the median household.
+ at the medians.
  Restrictions are
 \end_layout
 
@@ -2265,7 +2428,7 @@ The
 \begin_inset Formula $\alpha_{j}$
 \end_inset
 
- are interpreted as predicted budget shares at the median prices and expenditure.
+ are interpreted as predicted budget shares at the median prices and median expenditure.
  
 \begin_inset Formula $\beta_{j}$
 \end_inset
