@@ -1743,47 +1743,48 @@ I now turn to my proposed algorithm,
 
 \begin_layout Standard
 For each number of types 
-\begin_inset Formula $k=1,...,15$
+\begin_inset Formula $k$
 \end_inset
 
 ,
- I construct a partition into at most 
+ I find the highest efficiency level at which 
 \begin_inset Formula $k$
 \end_inset
 
- groups directly,
- in the style of Crawford and Pendakur's upper bound algorithm.
- Households are visited in a random order (the best of five orders is kept),
- and each is placed to maximize the resulting 
-\emph on
-minimum
-\emph default
- group CCEI — matching the reported statistic — with ties broken by the receiving group's own resulting CCEI and then its size.
- While fewer than 
+ types suffice.
+ For a level 
+\begin_inset Formula $e$
+\end_inset
+
+,
+ relax GARP as in the CCEI's definition and run Crawford and Pendakur's upper bound algorithm under the relaxed relations (keeping the best of five random orders):
+ this bounds the number of types needed at that level.
+ The number of types needed weakly rises with 
+\begin_inset Formula $e$
+\end_inset
+
+,
+ so the highest feasible level for each 
 \begin_inset Formula $k$
 \end_inset
 
- groups are open,
- starting a new group is scored as a candidate placement like any other.
- This max-min rule spreads hard-to-rationalize households across groups;
- a rule that simply minimized the damage to the receiving group would instead funnel them into whichever group is already worst,
- pinning the minimum near the pooled CCEI no matter how many types are allowed.
- The fully rationalizing 15-type partition is scored as a candidate at 
+ is found by binary search over the finite set of candidate levels — the cost ratios of the data.
+ This mirrors Crawford and Pendakur's treatment of optimisation error,
+ with the roles of the efficiency level and the number of types interchanged.
+ Finally,
+ each group's CCEI in the chosen partition is computed exactly,
+ and the reported rationality is their minimum,
+ which is at least the search level;
+ the fully rationalizing 15-type partition guarantees full rationality at 
 \begin_inset Formula $k=15$
 \end_inset
 
-,
- so the schedule ends at full rationality;
- and rebuilding the partition from scratch at each 
-\begin_inset Formula $k$
-\end_inset
-
- (rather than merging groups as in hierarchical clustering) yields a uniformly tighter schedule.
+.
  The schedule is weakly increasing in the number of types by construction,
- since a partition into fewer groups remains available when more types are allowed.
+ since the set of feasible levels only grows as more types are allowed.
  Lower rationality is interpretable as requiring more individual heterogeneity to rationalize the data.
  Algorithm 3 summarizes the procedure;
- the Varian variant differs only in the placement rule and reported statistic,
+ the Varian variant instead assigns each household the largest multiplier consistent with its group,
  as described below.
 \end_layout
 
@@ -1802,7 +1803,7 @@ begin{algorithm}[H]
 
 
 \backslash
-caption{Type schedule by greedy assignment (shown for the CCEI measure)}
+caption{Rationality schedule by efficiency search (CCEI measure)}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1829,7 +1830,20 @@ Require Observations $I=
 \backslash
 ldots,n
 \backslash
-}$; maximum types $K$; restarts $R$
+}$; maximum types $K$; restarts $R$;
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Statex 
+\backslash
+hspace{
+\backslash
+algorithmicindent} candidate levels $
+\backslash
+mathcal{E}$: the cost ratios in $(0,1)$, and $1$
 \end_layout
 
 \begin_layout Plain Layout
@@ -1838,7 +1852,41 @@ ldots,n
 \backslash
 Ensure Rationality schedule $
 \backslash
-rho(k)$ and a partition for each $k$
+rho(k)$ and a partition for each $k=1,
+\backslash
+ldots,K$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Function{Types}{$e$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State run Algorithm 2 with GARP relaxed to level $e$, for $R$ random orders
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State 
+\backslash
+Return the fewest number of groups $N(e)$ and its partition $
+\backslash
+mathcal{G}(e)$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFunction
 \end_layout
 
 \begin_layout Plain Layout
@@ -1854,158 +1902,30 @@ ldots,K$}
 
     
 \backslash
-For{$r=1,
+State $e_k 
 \backslash
-ldots,R$}
-\end_layout
-
-\begin_layout Plain Layout
-
-        
-\backslash
-State Draw a random ordering $(i_1,
-\backslash
-ldots,i_n)$ of $I$; $
-\backslash
-mathcal{G} 
-\backslash
-gets 
-\backslash
-varnothing$
-\end_layout
-
-\begin_layout Plain Layout
-
-        
-\backslash
-For{$t=1,
-\backslash
-ldots,n$}
-\end_layout
-
-\begin_layout Plain Layout
-
-            
-\backslash
-State For each $G
+gets$ largest $e
 \backslash
 in
 \backslash
-mathcal{G}$, compute $e_{G
+mathcal{E}$ with $N(e)
 \backslash
-cup
+leq k$, by binary search over $
 \backslash
-{i_t
-\backslash
-}}$, the CCEI of $G$ with $i_t$ added
-\end_layout
-
-\begin_layout Plain Layout
-
-            
-\backslash
-If{$|
-\backslash
-mathcal{G}|<k$}
-\end_layout
-
-\begin_layout Plain Layout
-
-                
-\backslash
-State also score a new group $
-\backslash
-{i_t
-\backslash
-}$ (its CCEI is $1$; other groups unchanged)
-\end_layout
-
-\begin_layout Plain Layout
-
-            
-\backslash
-EndIf
-\end_layout
-
-\begin_layout Plain Layout
-
-            
-\backslash
-State Place $i_t$ to maximize the resulting minimum group CCEI, breaking ties
-\end_layout
-
-\begin_layout Plain Layout
-
-            
-\backslash
-Statex 
-\backslash
-hspace{
-\backslash
-algorithmicindent}
-\backslash
-hspace{
-\backslash
-algorithmicindent}
-\backslash
-hspace{
-\backslash
-algorithmicindent} by the receiving group's resulting CCEI, then its size
-\end_layout
-
-\begin_layout Plain Layout
-
-        
-\backslash
-EndFor
-\end_layout
-
-\begin_layout Plain Layout
-
-        
-\backslash
-State $
-\backslash
-rho_r 
-\backslash
-gets 
-\backslash
-min_{G
-\backslash
-in
-\backslash
-mathcal{G}} e_G$
+mathcal{E}$
 \end_layout
 
 \begin_layout Plain Layout
 
     
 \backslash
-EndFor
-\end_layout
-
-\begin_layout Plain Layout
-
-    
+State compute each group's CCEI in $
 \backslash
-State $
+mathcal{G}(e_k)$; $
 \backslash
-rho(k) 
+rho(k)
 \backslash
-gets 
-\backslash
-max_r 
-\backslash
-rho_r$, keeping the corresponding partition
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-State At $k=K$, also score the partition from Algorithm 2 ($
-\backslash
-rho=1$)
+gets$ their minimum
 \end_layout
 
 \begin_layout Plain Layout

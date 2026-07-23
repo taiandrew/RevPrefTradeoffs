@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from ccei import ccei
 from garp import _SHRINK, ccei_subset, cross_expenditure, satisfies_garp
-from typeSchedule import type_schedule
+from typeSchedule import ccei_schedule_esearch, type_schedule
 from varian import varian
 from test_clustering import TWO_BLOCKS
 
@@ -153,6 +153,42 @@ def test_reference_partition_used_at_k_max():
     _, sched, _, _ = type_schedule(x, p, k_max=2, measure='ccei',
                                    n_restarts=3, reference=bad)
     assert sched.loc[2, 'rationality'] == 1.0  # restarts still find it
+
+
+def test_esearch_two_blocks_and_pooled():
+    x, p = TWO_BLOCKS
+    parts, sched, detail, mult = ccei_schedule_esearch(x, p, k_max=2,
+                                                       n_restarts=3)
+    assert mult is None
+    assert sched.loc[2, 'rationality'] == 1.0
+    col = parts['k2']
+    assert col[0] == col[1] and col[2] == col[3] and col[0] != col[2]
+    assert sched.loc[1, 'rationality'] == ccei(x, p)
+
+
+def test_esearch_properties_and_dominance():
+    x, p = random_data(2, n=15)
+    E = cross_expenditure(x, p)
+    k_max = 5
+    parts_e, sched_e, detail_e, _ = ccei_schedule_esearch(
+        x, p, k_max, n_restarts=2)
+    parts_m, sched_m, _, _ = type_schedule(x, p, k_max, measure='ccei',
+                                           n_restarts=2)
+    for k in range(1, k_max + 1):
+        # Valid partition; recorded efficiencies are the actual group
+        # CCEIs and rationality is their minimum
+        col = parts_e[f'k{k}']
+        assert col.nunique() == sched_e.loc[k, 'n_groups_used'] <= k
+        effs = []
+        for g, rows in detail_e[detail_e['k'] == k].groupby('group'):
+            idx = np.flatnonzero(col.to_numpy() == g)
+            assert abs(ccei_subset(E, idx) - rows['efficiency'].iloc[0]) < 1e-12
+            effs.append(rows['efficiency'].iloc[0])
+        assert sched_e.loc[k, 'rationality'] == min(effs)
+    assert (sched_e['rationality'].diff().dropna() >= 0).all()
+    # The e-search targets the reported statistic directly, so it should
+    # do at least as well as the max-min greedy on this small fixture
+    assert (sched_e['rationality'] >= sched_m['rationality'] - 1e-9).all()
 
 
 def test_validation_errors():

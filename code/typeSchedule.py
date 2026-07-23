@@ -230,6 +230,178 @@ class _VarianGroup:
         return float((1.0 - self.e_vec).sum())
 
 
+class _FixedEGroup:
+    """A group under a fixed efficiency level (e-GARP), for the e-search
+    schedule: caches the closure and strict relations at that level, so a
+    fit test is a single O(m^2) closure extension."""
+
+    def __init__(self, E, label, i, eff):
+        self.E, self.label, self.eff = E, label, eff
+        self.members = [i]
+        self.R, self.P0 = _build_caches(E, self.members, np.array([eff]))
+
+    def fits(self, i):
+        E, mem, eff = self.E, self.members, self.eff
+        diag = E[mem, mem]
+        col, row = E[mem, i], E[i, mem]
+        lim_i = eff * E[i, i]
+        to_i, sto_i = col <= eff * diag, col < eff * diag
+        ok, r_to, r_from = _fits(self.R, self.P0, to_i, sto_i,
+                                 row <= lim_i, row < lim_i)
+        return ok, (r_to, r_from, to_i, sto_i, row < lim_i)
+
+    def add(self, i, payload):
+        r_to, r_from, to_i, sto_i, sfrom_i = payload
+        self.R, self.P0 = _extend_caches(
+            self.R, self.P0, r_to, r_from, to_i, sto_i, sfrom_i)
+        self.members.append(i)
+
+
+def _cp_pass(E, n, eff, rng):
+    """One Crawford-Pendakur upper-bound pass under e-GARP at level
+    ``eff`` (already shrunk): each observation joins the first group
+    (largest first) it fits, else opens a new one. Returns the groups."""
+    order = rng.permutation(n)
+    groups = []
+    for i in order:
+        for g in sorted(groups, key=lambda g: (-len(g.members), g.label)):
+            ok, payload = g.fits(i)
+            if ok:
+                g.add(i, payload)
+                break
+        else:
+            groups.append(_FixedEGroup(E, len(groups) + 1, i, eff))
+    return groups
+
+
+def ccei_schedule_esearch(quantities: pd.DataFrame, prices: pd.DataFrame,
+                          k_max: int, n_restarts: int = 5, seed: int = 42,
+                          reference: pd.Series = None):
+    """CCEI rationality schedule by efficiency search (the dual of the
+    greedy max-min assignment, and the inverse of C&P's optimisation-error
+    exercise: their appendix fixes an efficiency level and counts types,
+    this searches the level for each number of types).
+
+    Maximizing the minimum group CCEI subject to at most k types is dual
+    to minimizing the number of types subject to every group passing
+    e-GARP: rationality(k) is the largest e at which the C&P upper-bound
+    greedy (run under e-GARP, best of ``n_restarts`` fixed random orders)
+    needs at most k groups. Since the number of types is monotone in e
+    for fixed orders, each k is a binary search over the finite set of
+    candidate levels (the cost ratios), and every probe uses only cheap
+    fit tests — no per-candidate CCEI searches at all. Probes are
+    memoized across k.
+
+    Each chosen partition is then tightened: every group's actual CCEI
+    (>= the search level) is computed, and the reported rationality is
+    their minimum, with the k - 1 partition carried forward if tightening
+    ever makes a larger k worse. ``reference`` (a fully rationalizing
+    partition, e.g. the saved upper-bound partition) guarantees
+    feasibility of level 1 at k >= its group count.
+
+    Returns ``(partitions_by_k, schedule, groups_detail, None)`` with the
+    same shapes as ``type_schedule``.
+    """
+    E = cross_expenditure(quantities, prices)
+    n = len(quantities)
+    if not (1 <= k_max <= n):
+        raise ValueError(f"k_max must be in 1..{n}")
+
+    ratios = E / np.diag(E)[:, None]
+    off = ratios[~np.eye(n, dtype=bool)]
+    levels = np.append(np.unique(off[(off > 0) & (off < 1)]), 1.0)
+
+    ref_groups, ref_k = None, None
+    if reference is not None:
+        if not reference.index.equals(quantities.index):
+            raise ValueError("reference must be indexed like quantities")
+        labels = reference.to_numpy()
+        ref_groups = [np.flatnonzero(labels == g).tolist()
+                      for g in np.unique(labels)]
+        if all(satisfies_garp(E, idx) for idx in ref_groups):
+            ref_k = len(ref_groups)
+        else:
+            print("Warning: reference partition is not fully rationalizing; "
+                  "ignoring it.")
+            ref_groups = None
+
+    cache = {}  # level index -> (n_types, members lists, best restart)
+
+    def probe(idx):
+        if idx not in cache:
+            e = levels[idx]
+            eff = e if e >= 1.0 else e * _SHRINK
+            best, best_r = None, None
+            for r in range(n_restarts):
+                groups = _cp_pass(E, n, eff, np.random.default_rng([seed, r]))
+                if best is None or len(groups) < len(best):
+                    best = [g.members for g in groups]
+                    best_r = r
+            cache[idx] = (len(best), best, best_r)
+        return cache[idx]
+
+    part_cols, sched_rows, detail_rows = {}, [], []
+    for k in range(1, k_max + 1):
+        # Largest level at which at most k groups suffice. The lowest
+        # candidate is always feasible: just below it there are no
+        # relations at all, so a single group holds everyone.
+        lo_i, hi_i = 0, len(levels) - 1
+        while lo_i < hi_i:
+            mid = (lo_i + hi_i + 1) // 2
+            n_types = probe(mid)[0]
+            if ref_k is not None:
+                n_types = min(n_types, ref_k)
+            if n_types <= k:
+                lo_i = mid
+            else:
+                hi_i = mid - 1
+        e_k = levels[lo_i]
+        n_types, members_lists, best_r = probe(lo_i)
+        if ref_k is not None and n_types > k:
+            members_lists, best_r = [list(g) for g in ref_groups], -1
+
+        # Tighten: each group's actual CCEI is at least the search level
+        rows = []
+        for mem in sorted(members_lists, key=len, reverse=True):
+            e_g = ccei_subset(E, mem, hi=1.0)
+            rows.append({'group': len(rows) + 1, 'size': len(mem),
+                         'efficiency': e_g,
+                         'loss': len(mem) * (1.0 - e_g),
+                         'method': 'esearch', 'members': mem})
+        rat = min(r['efficiency'] for r in rows)
+        total = sum(r['loss'] for r in rows)
+
+        # Monotonicity: tightening can wobble even though the search
+        # levels are monotone, so carry the k - 1 partition if better
+        if sched_rows and sched_rows[-1]['rationality'] > rat:
+            prev = sched_rows[-1]
+            rat, total, best_r, rows = (prev['rationality'],
+                                        prev['total_loss'],
+                                        prev['best_restart'], prev['rows'])
+            print(f"k={k}: tightened result is worse than k={k - 1}; "
+                  "carrying the previous partition forward.", flush=True)
+
+        labels_arr = np.empty(n, dtype=int)
+        for row in rows:
+            labels_arr[row['members']] = row['group']
+        part_cols[f'k{k}'] = pd.Series(labels_arr, index=quantities.index)
+        for row in rows:
+            detail_rows.append({'k': k, **{c: row[c] for c in
+                                ('group', 'size', 'efficiency', 'loss',
+                                 'method')}})
+        sched_rows.append({'k': k, 'rationality': rat, 'total_loss': total,
+                           'avg_loss': total / n,
+                           'n_groups_used': len(rows),
+                           'best_restart': best_r, 'rows': rows})
+        print(f"k={k}: rationality {rat:.4f} at level {e_k:.4f} "
+              f"({len(rows)} groups, best restart {best_r})", flush=True)
+
+    schedule = pd.DataFrame(sched_rows).drop(columns='rows').set_index('k')
+    partitions_by_k = pd.DataFrame(part_cols).astype('Int64')
+    groups_detail = pd.DataFrame(detail_rows)
+    return partitions_by_k, schedule, groups_detail, None
+
+
 def _choose_ccei(groups, i, slots_remain, next_label):
     """Max-min placement of observation i: maximize the resulting minimum
     group CCEI, then the host group's resulting CCEI, then host size, then

@@ -1,12 +1,15 @@
 """Runs the CCEI type schedule on the milk data ('all' sample).
 
-For each number of types k = 1..k_max, rebuilds the partition from scratch
-by max-min greedy assignment (typeSchedule.py): each household joins the
-placement that maximizes the resulting MINIMUM group CCEI, which is also
-the reported rationality at k — the common efficiency level at which every
-group passes e-GARP. Best of N_RESTARTS random visit orders per k. k_max
-is the number of groups in the best C&P upper-bound partition saved by
-runClustering.py.
+Uses the efficiency-search dual (typeSchedule.ccei_schedule_esearch): the
+reported rationality at k — the MINIMUM group CCEI, i.e. the common
+efficiency level at which every group passes e-GARP — is found as the
+largest level at which the C&P upper-bound greedy, run under e-GARP with
+N_RESTARTS fixed random orders, needs at most k groups; the chosen
+partition's group CCEIs are then tightened exactly. This searches the
+reported statistic directly instead of relying on greedy assignment luck
+(typeSchedule.type_schedule with measure='ccei' keeps the older max-min
+variant). k_max is the number of groups in the best C&P upper-bound
+partition saved by runClustering.py.
 
 Saves:
 - working_data/milk_schedule_ccei_all.{parquet,csv}: partition at every k
@@ -29,7 +32,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 working_dir = os.path.dirname(script_dir)
 os.chdir(working_dir)
 
-from typeSchedule import type_schedule
+from typeSchedule import ccei_schedule_esearch
 
 N_RESTARTS = 5
 SEED = 2026
@@ -52,8 +55,8 @@ k_max = members.nunique()
 print(f"=== CCEI schedule, {SAMPLE_LABEL}: {len(hhs)} households, "
       f"k = 1..{k_max} ===", flush=True)
 
-parts_by_k, schedule, groups_detail, _ = type_schedule(
-    quantities.loc[hhs], prices.loc[hhs], k_max, measure='ccei',
+parts_by_k, schedule, groups_detail, _ = ccei_schedule_esearch(
+    quantities.loc[hhs], prices.loc[hhs], k_max,
     n_restarts=N_RESTARTS, seed=SEED, reference=members.astype(int))
 
 print(f"\nRationality schedule (ccei, {SAMPLE_LABEL}):")

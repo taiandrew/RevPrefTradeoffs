@@ -920,21 +920,12 @@ L_{Varian}(G)=\sum_{i\in G}(1-e_{i})
 
 \begin_layout Section
 Algorithm IV:
- type schedule (fixed-
-\begin_inset Formula $k$
-\end_inset
-
- greedy assignment)
+ rationality schedule
 \end_layout
 
 \begin_layout Standard
 Supersedes Algorithms II and III as the loss exercise.
- Instead of merging the upper-bound partition (so that partitions are nested across 
-\begin_inset Formula $k$
-\end_inset
-
-),
- rebuild the partition from scratch at every number of types 
+ Rebuild the partition from scratch at every number of types 
 \begin_inset Formula $k=1,...,K$
 \end_inset
 
@@ -942,8 +933,132 @@ Supersedes Algorithms II and III as the loss exercise.
 \begin_inset Formula $K$
 \end_inset
 
- the practical upper bound),
- in the style of the C&P upper-bound algorithm.
+ the practical upper bound) and report its rationality:
+ the minimum group CCEI,
+ or the average Varian multiplier.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+CCEI:
+ efficiency search (dual of max-min)
+\end_layout
+
+\begin_layout Standard
+Maximizing the minimum group CCEI subject to at most 
+\begin_inset Formula $k$
+\end_inset
+
+ types is dual to minimizing the number of types subject to every group passing 
+\begin_inset Formula $e$
+\end_inset
+
+-GARP — the C&P optimisation-error exercise with the roles of 
+\begin_inset Formula $e$
+\end_inset
+
+ and 
+\begin_inset Formula $k$
+\end_inset
+
+ swapped.
+\end_layout
+
+\begin_layout Enumerate
+Candidate levels:
+ the cost ratios 
+\begin_inset Formula $c_{ts}\in(0,1)$
+\end_inset
+
+ plus 1 (GARP under 
+\begin_inset Formula $e$
+\end_inset
+
+ only changes at these).
+\end_layout
+
+\begin_layout Enumerate
+For a level 
+\begin_inset Formula $e$
+\end_inset
+
+,
+ let 
+\begin_inset Formula $N(e)$
+\end_inset
+
+ be the fewest groups over five fixed random orders of the C&P upper-bound greedy run under 
+\begin_inset Formula $e$
+\end_inset
+
+-GARP (probes are memoized across 
+\begin_inset Formula $k$
+\end_inset
+
+;
+ the saved upper-bound partition guarantees 
+\begin_inset Formula $N(1)\leq K$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+For each 
+\begin_inset Formula $k$
+\end_inset
+
+,
+ binary-search the largest level 
+\begin_inset Formula $e_{k}$
+\end_inset
+
+ with 
+\begin_inset Formula $N(e_{k})\leq k$
+\end_inset
+
+ (
+\begin_inset Formula $N$
+\end_inset
+
+ is monotone in 
+\begin_inset Formula $e$
+\end_inset
+
+ for fixed orders).
+\end_layout
+
+\begin_layout Enumerate
+Tighten:
+ compute each group's exact CCEI in the chosen partition (each is at least 
+\begin_inset Formula $e_{k}$
+\end_inset
+
+) and report the minimum;
+ if tightening ever makes a larger 
+\begin_inset Formula $k$
+\end_inset
+
+ report less,
+ carry the 
+\begin_inset Formula $k-1$
+\end_inset
+
+ partition forward.
+\end_layout
+
+\begin_layout Standard
+Because every probe is a plain fit-or-new-group pass (no per-candidate CCEI searches),
+ this is much faster than greedy assignment and searches the reported statistic directly;
+ the max-min greedy assignment (assign each household to maximize the resulting minimum group CCEI) is retained in code as an alternative but is dominated by the efficiency search in comparisons.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Varian:
+ greedy multiplier assignment
 \end_layout
 
 \begin_layout Enumerate
@@ -952,82 +1067,19 @@ Fix
 \end_inset
 
 .
- Visit the observations in a random order (five randomized runs for CCEI,
- one for Varian;
- keep the best).
+ Visit the observations in one random order.
 \end_layout
 
 \begin_layout Enumerate
-For each observation 
+Assign each observation 
 \begin_inset Formula $i$
 \end_inset
 
- and each existing group 
-\begin_inset Formula $G$
-\end_inset
-
-,
- evaluate the placement of 
-\begin_inset Formula $i$
-\end_inset
-
- in 
-\begin_inset Formula $G$
-\end_inset
-
-:
- under CCEI,
- the resulting group CCEI 
-\begin_inset Formula $e_{G\cup\{i\}}$
-\end_inset
-
-;
- under Varian,
- the largest multiplier 
+ to the group granting the highest multiplier 
 \begin_inset Formula $e_{i}$
 \end_inset
 
- consistent with the group (existing members keep their multipliers).
-\end_layout
-
-\begin_layout Enumerate
-CCEI (max-min,
- matching the reported statistic):
- assign 
-\begin_inset Formula $i$
-\end_inset
-
- to the placement maximizing the resulting 
-\emph on
-minimum
-\emph default
- group CCEI,
- breaking ties by the host group's resulting CCEI,
- then its size,
- then the lowest label;
- while fewer than 
-\begin_inset Formula $k$
-\end_inset
-
- groups are open,
- starting a new group is scored as a candidate placement like any other (host CCEI 1,
- other groups untouched).
- This spreads violators across groups;
- a marginal least-harm rule would instead funnel them into whichever group is already worst,
- pinning the minimum near the pooled CCEI.
-\end_layout
-
-\begin_layout Enumerate
-Varian:
- assign 
-\begin_inset Formula $i$
-\end_inset
-
- to the group granting the highest 
-\begin_inset Formula $e_{i}$
-\end_inset
-
-,
+ (existing members keep theirs),
  ties toward the largest group,
  then the lowest label;
  if every existing group would grant 
@@ -1052,32 +1104,12 @@ Varian:
 \end_layout
 
 \begin_layout Enumerate
-Track each group's CCEI (respectively,
- each observation's multiplier 
-\begin_inset Formula $e_{i}$
-\end_inset
-
-) through the assignment.
- Report,
- for each 
-\begin_inset Formula $k$
-\end_inset
-
-:
- the 
-\emph on
-minimum
-\emph default
- group CCEI — the common efficiency level at which every group passes 
-\begin_inset Formula $e$
-\end_inset
-
--GARP — or the simple average of the 
+Report the simple average of the tracked 
 \begin_inset Formula $e_{i}$
 \end_inset
 
  across all observations.
- (Optionally the Varian multipliers can be re-optimized per group at the end:
+ (Optionally the multipliers can be re-optimized per group at the end:
  exact via the Demuynck-Rehbeck MILP for small groups,
  coordinate ascent for medium ones.)
 \end_layout
@@ -1091,16 +1123,29 @@ Properties and object of interest
 \begin_layout Itemize
 Graph of rationality (minimum group CCEI or average Varian multiplier,
  y axis) against the number of types (x axis),
- weakly monotonically increasing.
+ weakly monotonically increasing by construction:
+ the feasible set of levels grows with 
+\begin_inset Formula $k$
+\end_inset
+
+ (CCEI),
+ and a worse greedy result than at 
+\begin_inset Formula $k-1$
+\end_inset
+
+ is replaced by the 
+\begin_inset Formula $k-1$
+\end_inset
+
+ partition (both measures).
 \end_layout
 
 \begin_layout Itemize
-The saved upper-bound partition is scored as a candidate at 
+The saved upper-bound partition guarantees full rationality at 
 \begin_inset Formula $k=K$
 \end_inset
 
-,
- so the schedule ends at exactly full rationality.
+.
 \end_layout
 
 \begin_layout Itemize
@@ -1108,39 +1153,7 @@ Partitions are not nested across
 \begin_inset Formula $k$
 \end_inset
 
-:
- each 
-\begin_inset Formula $k$
-\end_inset
-
- is rebuilt from scratch.
-\end_layout
-
-\begin_layout Itemize
-Monotonicity by construction:
- a partition into fewer than 
-\begin_inset Formula $k$
-\end_inset
-
- groups is feasible when 
-\begin_inset Formula $k$
-\end_inset
-
- are allowed,
- so whenever the greedy result at 
-\begin_inset Formula $k$
-\end_inset
-
- is worse than at 
-\begin_inset Formula $k-1$
-\end_inset
-
-,
- the 
-\begin_inset Formula $k-1$
-\end_inset
-
- partition is carried forward.
+.
 \end_layout
 
 \end_body
