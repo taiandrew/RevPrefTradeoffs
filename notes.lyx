@@ -952,7 +952,9 @@ Fix
 \end_inset
 
 .
- Visit the observations in a random order (one randomized run).
+ Visit the observations in a random order (two randomized runs for CCEI,
+ one for Varian;
+ keep the best).
 \end_layout
 
 \begin_layout Enumerate

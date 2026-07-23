@@ -1753,7 +1753,7 @@ For each number of types
 
  groups directly,
  in the style of Crawford and Pendakur's upper bound algorithm.
- Households are visited in a random order,
+ Households are visited in a random order (the best of two orders is kept),
  and each is placed to maximize the resulting 
 \emph on
 minimum

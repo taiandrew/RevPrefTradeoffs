@@ -8,8 +8,9 @@ without recomputing anything:
   (working_data/milk_partitions.parquet, runClustering.py);
 - graphs/schedule_rationality_{ccei,varian}_all.png: the product — the
   rationality schedule against the number of types
-  (working_data/schedule_loss_{method}_all.csv, runSchedule.py).
-  Methods whose schedule file does not exist yet are skipped.
+  (working_data/schedule_loss_{method}_all.csv, runScheduleCCEI.py /
+  runScheduleVarian.py). Methods whose schedule file does not exist yet
+  are skipped.
 """
 
 #%% Preamble

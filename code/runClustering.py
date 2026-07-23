@@ -29,7 +29,7 @@ os.chdir(working_dir)
 from clusteringLowerBd import cluster_lower_bound
 from clusteringUpperBd import cluster_upper_bound
 
-N_ITER = 10
+N_ITER = 5
 SEED = 42
 
 
