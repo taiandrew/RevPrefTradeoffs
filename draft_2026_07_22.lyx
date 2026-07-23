@@ -1757,7 +1757,7 @@ For each number of types
 \end_inset
 
 ,
- relax GARP as in the CCEI's definition and run Crawford and Pendakur's upper bound algorithm under the relaxed relations (keeping the best of five random orders):
+ relax GARP as in the CCEI's definition and run Crawford and Pendakur's upper bound algorithm under the relaxed relations (keeping the best of ten random orders):
  this bounds the number of types needed at that level.
  The number of types needed weakly rises with 
 \begin_inset Formula $e$

@@ -34,7 +34,7 @@ os.chdir(working_dir)
 
 from typeSchedule import ccei_schedule_esearch
 
-N_RESTARTS = 5
+N_RESTARTS = 10
 SEED = 2026
 SAMPLE, SAMPLE_LABEL = 'all', 'All households'
 
