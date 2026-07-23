@@ -152,18 +152,16 @@ literal "false"
 
 \begin_layout Abstract
 This paper proposes a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
- The Generalized Axiom of Revealed Preference can be applied to partition consumers into fully rational types,
+ The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
  in the classical consumer theory sense.
  From here,
- I construct a schedule between parsimony and rationality:
- for each number of types,
- households are partitioned into groups that are as close to rational as possible.
+ types can be combined in a minimally lossy way.
  I illustrate using household milk purchase data.
  In the example data,
- 15 types are required to fully rationalize the data;
+ 15 types are required to rationalize the data;
  however,
  many of these have few households,
- and far fewer types describe the data at little cost to rationality.
+ and can be merged into other types without significantly harming rationality.
  My method thus establishes a theory-driven and principled way to describe consumer demand data and the tradeoff between parsimony and heterogeneity.
 \end_layout
 
@@ -391,10 +389,17 @@ I apply this method to data from the USDA,
  I find that 15 types are necessary to rationalize the 2,167 households.
  However,
  many of these types contain very few households.
- I thus construct a schedule between the number of types and rationality:
- for each number of types,
- households are partitioned into that many groups by a greedy algorithm that places each household so as to keep the partition as rational as possible,
- with rationality measured by either the Critical Cost Efficiency Index (CCEI) or the Varian index (cf.
+ I thus propose to combine this method with ideas in machine learning for classification like hierarchical clustering.
+ Many groups can be combined while incurring low 
+\begin_inset Quotes eld
+\end_inset
+
+loss
+\begin_inset Quotes erd
+\end_inset
+
+ to rationalizability,
+ calculating loss as either Critical Cost Efficiency Index (CCEI) or the Varian index (cf.
  
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -412,8 +417,8 @@ literal "false"
 \end_inset
 
 ).
- The schedule makes the tradeoff explicit:
- sacrificing a modest amount of rationality (interpretable as unmodeled individual heterogeneity) supports far fewer types.
+ Using Varian's rule-of-thumb of 95% rationality as essentially rational,
+ we can reduce the number of types by half.
  My method thus offers intermediate options between two extremes – assuming all households have the same underlying utility;
  or requiring full rationality.
  By sacrificing a modest amount of rationality (interpretable as requiring individual heterogeneity),
@@ -1712,303 +1717,72 @@ how much would we need to shrink each observed budget before the consumer’s ch
 \end_layout
 
 \begin_layout Standard
-I now turn to my proposed algorithm,
- which produces a schedule between the number of types and rationality.
- For a set of households 
-\begin_inset Formula $G$
-\end_inset
-
-,
- let 
-\begin_inset Formula $e_{G}$
-\end_inset
-
- denote its CCEI when all of 
-\begin_inset Formula $G$
-\end_inset
-
- is treated as one type.
- I define the rationality of a partition 
+I now turn to my proposed algorithm for combining groups.
+ We balance the desire for fewer and larger groups with the loss in rationality in each group.
+ For a partition of households 
 \begin_inset Formula $\mathcal{P}=\{G_{1},...,G_{k}\}$
 \end_inset
 
- as the minimum group CCEI,
- 
-\begin_inset Formula $\min_{G\in\mathcal{P}}e_{G}$
-\end_inset
-
-:
- the common efficiency level at which every group simultaneously passes the (relaxed) GARP test.
-\end_layout
-
-\begin_layout Standard
-For each number of types 
-\begin_inset Formula $k$
-\end_inset
-
 ,
- I find the highest efficiency level at which 
-\begin_inset Formula $k$
+ for a set of households 
+\begin_inset Formula $G$
 \end_inset
 
- types suffice.
- For a level 
-\begin_inset Formula $e$
+ define the loss of treating all 
+\begin_inset Formula $G$
 \end_inset
 
-,
- relax GARP as in the CCEI's definition and run Crawford and Pendakur's upper bound algorithm under the relaxed relations (keeping the best of five random orders):
- this bounds the number of types needed at that level.
- The number of types needed weakly rises with 
-\begin_inset Formula $e$
+ as one type as 
+\begin_inset Formula 
+\[
+L(G)=|G|(1-e_{G})
+\]
+
 \end_inset
 
-,
- so the highest feasible level for each 
-\begin_inset Formula $k$
+where 
+\begin_inset Formula $e_{G}$
 \end_inset
 
- is found by binary search over the finite set of candidate levels —
- the cost ratios of the data.
- This mirrors Crawford and Pendakur's treatment of optimisation error,
- with the roles of the efficiency level and the number of types interchanged.
- Finally,
- each group's CCEI in the chosen partition is computed exactly,
- and the reported rationality is their minimum,
- which is at least the search level;
- the fully rationalizing 15-type partition guarantees full rationality at 
-\begin_inset Formula $k=15$
+ is CCEI of 
+\begin_inset Formula $G$
 \end_inset
 
 .
- The schedule is weakly increasing in the number of types by construction,
- since the set of feasible levels only grows as more types are allowed.
- Lower rationality is interpretable as requiring more individual heterogeneity to rationalize the data.
- Algorithm 3 summarizes the procedure;
- the Varian variant instead assigns each household the largest multiplier consistent with its group,
- as described below.
-\end_layout
+ For each pair of groups 
+\begin_inset Formula $G_{a},G_{b}$
+\end_inset
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{algorithm}[H]
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-caption{Rationality schedule by efficiency search (CCEI measure)}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-label{alg:schedule}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{algorithmic}[1]
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-Require Observations $I=
-\backslash
-{1,
-\backslash
-ldots,n
-\backslash
-}$;
- maximum types $K$;
- restarts $R$;
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-Statex 
-\backslash
-hspace{
-\backslash
-algorithmicindent} candidate levels $
-\backslash
-mathcal{E}$:
- the cost ratios in $(0,1)$,
- and $1$
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-Ensure Rationality schedule $
-\backslash
-rho(k)$ and a partition for each $k=1,
-\backslash
-ldots,K$
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-Function{Types}{$e$}
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-State run Algorithm 2 with GARP relaxed to level $e$,
- for $R$ random orders
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-State 
-\backslash
-Return the fewest number of groups $N(e)$ and its partition $
-\backslash
-mathcal{G}(e)$
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndFunction
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-For{$k=1,
-\backslash
-ldots,K$}
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-State $e_k 
-\backslash
-gets$ largest $e
-\backslash
-in
-\backslash
-mathcal{E}$ with $N(e)
-\backslash
-leq k$,
- by binary search over $
-\backslash
-mathcal{E}$
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-State compute each group's CCEI in $
-\backslash
-mathcal{G}(e_k)$;
- $
-\backslash
-rho(k)
-\backslash
-gets$ their minimum
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-If{$k>1$ and $
-\backslash
-rho(k)<
-\backslash
-rho(k-1)$}
-\end_layout
-
-\begin_layout Plain Layout
-
-        
-\backslash
-State $
-\backslash
-rho(k)
-\backslash
-gets
-\backslash
-rho(k-1)$ and reuse the $k-1$ partition
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\backslash
-EndIf
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-EndFor
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{algorithmic}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{algorithm}
-\end_layout
+,
+ calculate the incremental merge cost as 
+\begin_inset Formula 
+\[
+L(G_{a}\cup G_{b})-L(G_{a})-L(G_{b}).
+\]
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-Figure 2 shows the schedule of rationality and types.
+At each step,
+ we merge the two groups with the lowest incremental merge cost.
+ The final product is a curve between summed loss and the number of types,
+ akin to hierarchical clustering.
+ Greater loss is interpretable as requiring more individual heterogeneity to rationalize the data.
+ Figure 2 shows the curve of loss and types.
  At 15 types,
- the data are fully rationalized:
- every group has a CCEI of 1.
- Combining all households into one type results in significant irrationality (that is,
+ which fully rationalizes the data,
+ there is 0 loss.
+ Combining all types into one group results in significant loss (that is,
  significant individual heterogeneity).
- In between,
- the schedule shows exactly how much rationality each additional type buys,
- and we can reduce the number of types substantially while keeping every group close to rational.
+ However,
+ we can reduce the number of types to 8 while maintaining that rationality within type,
+ on average.
  Informally,
  it is 
 \emph on
 approximately correct
 \emph default
- to treat the households within each group as sharing the same utility function.
+ to treat the households as sharing the same utility function.
+ 
 \begin_inset Float figure
 placement document
 alignment document
@@ -2020,7 +1794,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Rationality - types schedule for CCEI
+Loss - types curve for CCEI
 \end_layout
 
 \end_inset
@@ -2031,7 +1805,7 @@ Rationality - types schedule for CCEI
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename graphs/schedule_rationality_ccei_all.png
+	filename graphs/reduction_avgloss_ccei_all.png
 	lyxscale 40
 	width 4.5in
 
@@ -2047,38 +1821,11 @@ Rationality - types schedule for CCEI
 
 \begin_layout Standard
 I also repeat the analysis for the Varian index,
- which allows each household to waste an individual amount of its budget.
- Here each household carries its own efficiency multiplier 
-\begin_inset Formula $e_{i}$
-\end_inset
-
-:
- when a household is assigned,
- it receives the largest multiplier consistent with its group,
- and existing members keep theirs.
- The reported rationality at each 
-\begin_inset Formula $k$
-\end_inset
-
- is the simple average of the 
-\begin_inset Formula $e_{i}$
-\end_inset
-
- across all households.
- The resulting measure is smoother and less punishing,
- since one badly-behaved household no longer drags down its whole group.
- Computing the Varian index exactly is NP-hard (see 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "DR"
-literal "false"
-
-\end_inset
-
- for an exact mixed-integer programming approach);
- the tracked multipliers are feasible by construction,
- so the reported index is a slightly conservative lower bound.
- Figure 3 shows the schedule of Varian index rationality to number of types.
+ which allows each household to waste an individual amount of its budget,
+ and takes the average.
+ The resulting measure is smoother and less punishing.
+ Figure 3 shows the curve of Varian index loss to number of types.
+ 
 \begin_inset Float figure
 placement document
 alignment document
@@ -2090,7 +1837,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Rationality - types schedule for Varian index
+Loss - types curve for Varian index
 \end_layout
 
 \end_inset
@@ -2101,7 +1848,7 @@ Rationality - types schedule for Varian index
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename graphs/schedule_rationality_varian_all.png
+	filename graphs/reduction_avgloss_varian_all.png
 	lyxscale 40
 	width 4.5in
 
@@ -2305,9 +2052,7 @@ Table 3 shows AIDS
 \begin_inset Formula $\beta$
 \end_inset
 
- estimates for the partition into 11 types —
- the smallest number of types whose CCEI rationality reaches 90% on the schedule —
- as an example.
+ estimates for partition into 8 types (according to the CCEI procedure) as an example.
  The pooled sample estimates are incorrect on theoretical grounds (since we know we cannot treat all households as sharing a common utility function).
  Further,
  in practical terms,
@@ -2342,13 +2087,7 @@ centering
 
 
 \backslash
-caption{AIDS levels and expenditure semi-elasticities by Varian-reduced
-\end_layout
-
-\begin_layout Plain Layout
-
-type (all households,
- 3 types).
+caption{AIDS levels and expenditure semi-elasticities by CCEI-reduced type.
  Standard errors in parentheses;
 \end_layout
 
@@ -2361,7 +2100,7 @@ type (all households,
 
 
 \backslash
-label{tab:aids_types_varian_all}
+label{tab:aids_types_all}
 \end_layout
 
 \begin_layout Plain Layout
@@ -2439,7 +2178,7 @@ addlinespace
 
 \begin_layout Plain Layout
 
-Type 1 & 1252 & 0.306 & 0.560 & 0.066 & 0.069 
+Type 1 & 1125 & 0.249 & 0.518 & 0.101 & 0.132 
 \backslash
 
 \backslash
@@ -2448,7 +2187,7 @@ Type 1 & 1252 & 0.306 & 0.560 & 0.066 & 0.069
 
 \begin_layout Plain Layout
 
- & & (0.012) & (0.013) & (0.007) & (0.007) 
+ & & (0.012) & (0.014) & (0.008) & (0.009) 
 \backslash
 
 \backslash
@@ -2457,7 +2196,7 @@ Type 1 & 1252 & 0.306 & 0.560 & 0.066 & 0.069
 
 \begin_layout Plain Layout
 
-Type 2 & 655 & 0.165 & 0.410 & 0.188 & 0.237 
+Type 2 & 302 & 0.640 & 0.072 & 0.163 & 0.125 
 \backslash
 
 \backslash
@@ -2466,7 +2205,7 @@ Type 2 & 655 & 0.165 & 0.410 & 0.188 & 0.237
 
 \begin_layout Plain Layout
 
- & & (0.012) & (0.013) & (0.014) & (0.015) 
+ & & (0.027) & (0.017) & (0.019) & (0.018) 
 \backslash
 
 \backslash
@@ -2475,7 +2214,7 @@ Type 2 & 655 & 0.165 & 0.410 & 0.188 & 0.237
 
 \begin_layout Plain Layout
 
-Type 3 & 260 & 0.523 & 0.052 & 0.084 & 0.340 
+Type 3 & 259 & -0.003 & 0.972 & 0.030 & 0.001 
 \backslash
 
 \backslash
@@ -2484,7 +2223,97 @@ Type 3 & 260 & 0.523 & 0.052 & 0.084 & 0.340
 
 \begin_layout Plain Layout
 
- & & (0.030) & (0.011) & (0.019) & (0.028) 
+ & & (0.011) & (0.015) & (0.009) & (0.002) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 4 & 180 & 0.431 & 0.060 & 0.208 & 0.302 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.033) & (0.017) & (0.029) & (0.030) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 5 & 145 & 0.278 & 0.278 & 0.320 & 0.124 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.026) & (0.021) & (0.024) & (0.016) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 6 & 78 & 0.375 & 0.075 & 0.052 & 0.498 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.038) & (0.027) & (0.028) & (0.053) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 7 & 47 & 0.207 & 0.494 & 0.029 & 0.270 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.027) & (0.038) & (0.021) & (0.030) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 8 & 31 & 0.031 & 0.035 & 0.000 & 0.934 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.021) & (0.032) & -- & (0.039) 
 \backslash
 
 \backslash
@@ -2539,7 +2368,7 @@ addlinespace
 
 \begin_layout Plain Layout
 
-Type 1 & 1252 & 0.194 & -0.236 & 0.024 & 0.018 
+Type 1 & 1125 & -0.011 & 0.016 & 0.032 & -0.037 
 \backslash
 
 \backslash
@@ -2548,7 +2377,7 @@ Type 1 & 1252 & 0.194 & -0.236 & 0.024 & 0.018
 
 \begin_layout Plain Layout
 
- & & (0.020) & (0.022) & (0.011) & (0.012) 
+ & & (0.020) & (0.024) & (0.013) & (0.016) 
 \backslash
 
 \backslash
@@ -2557,7 +2386,7 @@ Type 1 & 1252 & 0.194 & -0.236 & 0.024 & 0.018
 
 \begin_layout Plain Layout
 
-Type 2 & 655 & -0.164 & 0.496 & -0.106 & -0.226 
+Type 2 & 302 & 0.042 & 0.233 & -0.236 & -0.039 
 \backslash
 
 \backslash
@@ -2566,7 +2395,7 @@ Type 2 & 655 & -0.164 & 0.496 & -0.106 & -0.226
 
 \begin_layout Plain Layout
 
- & & (0.021) & (0.024) & (0.025) & (0.026) 
+ & & (0.051) & (0.031) & (0.035) & (0.033) 
 \backslash
 
 \backslash
@@ -2575,7 +2404,7 @@ Type 2 & 655 & -0.164 & 0.496 & -0.106 & -0.226
 
 \begin_layout Plain Layout
 
-Type 3 & 260 & -0.102 & 0.016 & 0.115 & -0.029 
+Type 3 & 259 & 0.038 & -0.050 & 0.008 & 0.004 
 \backslash
 
 \backslash
@@ -2584,7 +2413,97 @@ Type 3 & 260 & -0.102 & 0.016 & 0.115 & -0.029
 
 \begin_layout Plain Layout
 
- & & (0.032) & (0.012) & (0.019) & (0.030) 
+ & & (0.010) & (0.014) & (0.009) & (0.002) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 4 & 180 & -0.071 & 0.154 & 0.048 & -0.131 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.037) & (0.019) & (0.031) & (0.033) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 5 & 145 & 0.051 & -0.003 & -0.040 & -0.008 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.037) & (0.030) & (0.035) & (0.022) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 6 & 78 & -0.348 & 0.094 & 0.281 & -0.027 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.056) & (0.040) & (0.044) & (0.074) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 7 & 47 & 0.205 & 0.105 & -0.012 & -0.298 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.035) & (0.048) & (0.024) & (0.040) 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Type 8 & 31 & 0.008 & 0.027 & 0.000 & -0.036 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ & & (0.020) & (0.034) & -- & (0.039) 
 \backslash
 
 \backslash
@@ -2623,20 +2542,18 @@ Conclusion
 
 \begin_layout Standard
 I propose a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
- The Generalized Axiom of Revealed Preference can be applied to partition consumers into fully rational types,
+ The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
  in the classical consumer theory sense.
  From here,
- a schedule between parsimony and rationality can be traced:
- for any number of types,
- households are partitioned into groups that are as close to rational as possible.
+ types can be combined in a minimally lossy way.
 \end_layout
 
 \begin_layout Standard
 In the example data,
- 15 types are required to fully rationalize household milk purchases;
+ 15 types are required to rationalize household milk purchases;
  however,
  many of these have few households,
- and far fewer types describe the data without significantly harming rationality.
+ and can be merged into other types without significantly harming rationality.
  My method thus establishes a theory-driven and principled way to describe consumer demand data and the tradeoff between parsimony and heterogeneity.
  This matters in practice:
  application of AIDS models shows significant heterogeneity between household types.
@@ -2786,26 +2703,6 @@ Deaton,
  The American Economic Review,
  70(3),
  pp.312-326.
-\end_layout
-
-\begin_layout Bibliography
-\begin_inset CommandInset bibitem
-LatexCommand bibitem
-label "Demuynck and Rehbeck(2023)"
-key "DR"
-literal "false"
-
-\end_inset
-
-Demuynck,
- T.
- and Rehbeck,
- J.,
- 2023.
- Computing revealed preference goodness-of-fit measures with integer programming.
- Economic Theory,
- 76,
- pp.1175-1195.
 \end_layout
 
 \begin_layout Bibliography

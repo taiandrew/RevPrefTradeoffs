@@ -135,11 +135,24 @@ literal "false"
 
 \begin_layout Date
 July 2026
+\begin_inset Newline newline
+\end_inset
+
+[
+\begin_inset CommandInset href
+LatexCommand href
+name "Click here for most recent draft."
+target "https://taiandrew.github.io/files/Tai_MostlyRational.pdf"
+literal "false"
+
+\end_inset
+
+]
 \end_layout
 
 \begin_layout Abstract
 This paper proposes a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
- The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
+ The Generalized Axiom of Revealed Preference can be applied to partition consumers into fully rational types,
  in the classical consumer theory sense.
  From here,
  types can be combined in a minimally lossy way.
@@ -376,7 +389,7 @@ I apply this method to data from the USDA,
  I find that 15 types are necessary to rationalize the 2,167 households.
  However,
  many of these types contain very few households.
- I thus propose to combine this method with ideas in machine learning for classification like hierarchical clustering and KNN.
+ I thus propose to combine this method with ideas in machine learning for classification like hierarchical clustering.
  Many groups can be combined while incurring low 
 \begin_inset Quotes eld
 \end_inset
@@ -1752,7 +1765,7 @@ L(G_{a}\cup G_{b})-L(G_{a})-L(G_{b}).
 At each step,
  we merge the two groups with the lowest incremental merge cost.
  The final product is a curve between summed loss and the number of types,
- akin to hierarchical clustering or KNN.
+ akin to hierarchical clustering.
  Greater loss is interpretable as requiring more individual heterogeneity to rationalize the data.
  Figure 2 shows the curve of loss and types.
  At 15 types,
@@ -1936,26 +1949,36 @@ and
 \begin_inset Formula $\sum_{k}\alpha_{k}=1$
 \end_inset
 
- and 
+,
+ 
 \begin_inset Formula $\sum_{k}\beta_{k}=0$
+\end_inset
+
+,
+ and 
+\begin_inset Formula $\sum_{j}\gamma_{jk}=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $k$
 \end_inset
 
  – expenditure shares over milk categories sum to 1
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $\sum_{k}\gamma_{kl}=0$
+\begin_inset Formula $\sum_{k}\gamma_{jk}=0$
 \end_inset
 
  for all 
-\begin_inset Formula $l$
+\begin_inset Formula $j$
 \end_inset
 
  – homogeneity of degree zero in prices and total expenditure
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $\gamma_{kl}=\gamma_{lk}$
+\begin_inset Formula $\gamma_{jk}=\gamma_{kj}$
 \end_inset
 
  – symmetry of the Slutsky matrix
@@ -2064,13 +2087,7 @@ centering
 
 
 \backslash
-caption{AIDS levels and expenditure semi-elasticities by CCEI-reduced type
-\end_layout
-
-\begin_layout Plain Layout
-
-(all households,
- 8 types).
+caption{AIDS levels and expenditure semi-elasticities by CCEI-reduced type.
  Standard errors in parentheses;
 \end_layout
 
@@ -2525,7 +2542,7 @@ Conclusion
 
 \begin_layout Standard
 I propose a method combining revealed preference theory and machine learning ideas to partition consumers in a principled way.
- The Generalized Axiom of Revealed Preferences can be applied to partition consumers into fully rational types,
+ The Generalized Axiom of Revealed Preference can be applied to partition consumers into fully rational types,
  in the classical consumer theory sense.
  From here,
  types can be combined in a minimally lossy way.
