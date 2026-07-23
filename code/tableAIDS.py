@@ -1,4 +1,4 @@
-"""AIDS levels and expenditure semi-elasticities by reduced type, formatted as
+"""AIDS levels and expenditure semi-elasticities by schedule type, formatted as
 LaTeX tables akin to Crawford & Pendakur (2013) Table 3.
 
 For each (schedule measure, number of types) in CONFIGS, estimates AIDS
@@ -134,9 +134,10 @@ def to_latex(rows, method, n_types):
     good_headers = ' & '.join(goods)
     return f"""\\begin{{table}}[htbp]
 \\centering
-\\caption{{AIDS levels and expenditure semi-elasticities by {METHOD_NAMES[method]}-reduced
+\\caption{{AIDS levels and expenditure semi-elasticities by {METHOD_NAMES[method]}-schedule
 type ({SAMPLE_NAMES[SAMPLE]}, {n_types} types). Standard errors in parentheses;
-0.000 (--) marks a milk type the group never purchases.}}
+0.000 (--) marks a milk type the group never purchases; types too small
+to estimate report their size only.}}
 \\label{{tab:aids_types_{method}_{SAMPLE}}}
 \\begin{{tabular}}{{lr{'r' * len(goods)}}}
 \\toprule
@@ -180,7 +181,7 @@ for method, n_types in CONFIGS:
          **{f'b_{g}': None if r[f'beta_{g}'] is None
             else round(r[f'beta_{g}'], 3) for g in goods}}
         for r in rows])
-    print(f"\nAIDS by {METHOD_NAMES[method]}-reduced type "
+    print(f"\nAIDS by {METHOD_NAMES[method]}-schedule type "
           f"({SAMPLE_NAMES[SAMPLE]}, {n_types} types):")
     print(preview.to_string(index=False))
     print(f"Saved {path}")
