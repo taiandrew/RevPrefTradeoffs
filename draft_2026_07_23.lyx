@@ -134,7 +134,8 @@ literal "false"
 \end_layout
 
 \begin_layout Date
-July 2026
+July 23,
+ 2026
 \begin_inset Newline newline
 \end_inset
 
@@ -2295,7 +2296,9 @@ The
 \begin_inset Formula $\beta_{j}<0$
 \end_inset
 
- implies it is a necessity.
+ implies it is a necessity —
+ in the conditional sense,
+ relative to the household's milk budget rather than its total expenditure.
  
 \begin_inset Formula $\gamma_{kl}$
 \end_inset
@@ -2343,8 +2346,6 @@ literal "false"
 \end_inset
 
  for space.
- A milk type that a group never purchases has an identically zero share and is reported as 0.000 (--);
- types with too few households to estimate report their size only.
 \end_layout
 
 \begin_layout Standard
@@ -2368,12 +2369,21 @@ Since the Varian index is the favored measure,
  Type 1 shifts toward whole milk and away from 2% (semi-elasticities 0.19 and -0.24),
  while Type 2 does exactly the reverse (-0.16 and 0.50);
  Type 3 shifts modestly toward 1%.
+ Converting to expenditure elasticities (
+\begin_inset Formula $1+\beta_{j}/w_{j}$
+\end_inset
+
+,
+ conditional on the milk budget),
+ Type 1's elasticities are about 1.6 for whole milk and 0.6 for 2% —
+ a luxury and a necessity —
+ while Type 2's whole-milk elasticity is approximately zero:
+ its whole-milk quantity barely moves as its milk spending grows.
  A pooled model would conclude that expenditure barely matters for milk composition,
  when in fact it matters substantially —
  in opposite directions —
  for almost nine-tenths of the sample.
 \end_layout
-
 
 \begin_layout Standard
 \begin_inset ERT
@@ -2402,17 +2412,9 @@ caption{AIDS levels and expenditure semi-elasticities by Varian-schedule
 
 \begin_layout Plain Layout
 
-type (all households, 3 types). Standard errors in parentheses;
-\end_layout
-
-\begin_layout Plain Layout
-
-0.000 (--) marks a milk type the group never purchases; types too small
-\end_layout
-
-\begin_layout Plain Layout
-
-to estimate report their size only.}
+type (all households,
+ 3 types).
+ Standard errors in parentheses.}
 \end_layout
 
 \begin_layout Plain Layout
@@ -2462,7 +2464,8 @@ midrule
 \backslash
 multicolumn{6}{l}{
 \backslash
-textit{Levels}, $a^j$} 
+textit{Levels},
+ $a^j$} 
 \backslash
 
 \backslash
@@ -2561,7 +2564,8 @@ midrule
 \backslash
 multicolumn{6}{l}{
 \backslash
-textit{Expenditure semi-elasticities}, $b^j$} 
+textit{Expenditure semi-elasticities},
+ $b^j$} 
 \backslash
 
 \backslash
