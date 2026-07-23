@@ -152,7 +152,7 @@ GARP
 
 \begin_deeper
 \begin_layout Itemize
-Equivalent:
+Equivalent: 
 \begin_inset Formula 
 \[
 x^{j}\succeq x^{k}\Rightarrow p^{k}\cdot x^{k}\leq p^{k}\cdot x^{j}
@@ -195,7 +195,7 @@ There exist numbers
 \begin_inset Formula $\lambda^{j}>0$
 \end_inset
 
- with
+ with 
 \begin_inset Formula 
 \[
 U^{s}\leq U^{t}+\lambda^{t}p^{t}\cdot[x^{s}-x^{t}]
@@ -249,7 +249,7 @@ For
 \end_inset
 
 ,
- define the relaxed direct revealed relation
+ define the relaxed direct revealed relation 
 \begin_inset Formula 
 \[
 x^{j}R^{e}x^{k}\iff p^{j}\cdot x^{k}\leq ep^{j}\cdot x^{j}
@@ -357,7 +357,7 @@ L_{CCEI}(G)=n_{G}(1-e_{G})
 
 \end_inset
 
-or expenditure weighted:
+or expenditure weighted: 
 \begin_inset Formula 
 \[
 L_{CCEI}(G)=M_{G}(1-e_{G})
@@ -436,7 +436,7 @@ Afriat inequality slack loss
 \end_layout
 
 \begin_layout Itemize
-Introduce weakly positive slack terms
+Introduce weakly positive slack terms 
 \begin_inset Formula 
 \[
 U^{s}\leq U^{t}+\lambda^{t}p^{t}\cdot[x^{s}-x^{t}]+\xi_{ts},\quad\xi_{ts}\geq0
@@ -478,7 +478,7 @@ Also need to normalize across groups since
 \end_inset
 
  are arbitrary utilities:
- for example
+ for example 
 \begin_inset Formula 
 \[
 \sum_{t\in G}\lambda_{t}p^{t}\cdot x^{t}=|G|
@@ -496,7 +496,7 @@ Calculation:
 \end_layout
 
 \begin_layout Itemize
-Compute all Afriat cost differences:
+Compute all Afriat cost differences: 
 \begin_inset Formula 
 \[
 a_{ts}=p^{t}\cdot(x^{s}-x^{t})
@@ -508,7 +508,7 @@ a_{ts}=p^{t}\cdot(x^{s}-x^{t})
 \end_layout
 
 \begin_layout Itemize
-Solve the LP
+Solve the LP 
 \begin_inset Formula 
 \[
 \min_{U,\lambda,\xi}\sum_{t,s}w_{ts}\xi_{ts}
@@ -542,7 +542,7 @@ Alternative:
 \end_layout
 
 \begin_layout Itemize
-Can use one slack per base observation:
+Can use one slack per base observation: 
 \begin_inset Formula 
 \[
 U_{s}\leq U_{t}+\lambda_{t}p^{t}\cdot(x^{s}-x^{t})+\xi_{t}\quad\forall s,t
@@ -907,7 +907,7 @@ Each observation (household) has its own
 \begin_inset Formula $e_{t}$
 \end_inset
 
- shrinkage factor.
+ shrinkage factor. 
 \begin_inset Formula 
 \[
 L_{Varian}(G)=\sum_{i\in G}(1-e_{i})
@@ -916,6 +916,229 @@ L_{Varian}(G)=\sum_{i\in G}(1-e_{i})
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Algorithm IV:
+ type schedule (fixed-
+\begin_inset Formula $k$
+\end_inset
+
+ greedy assignment)
+\end_layout
+
+\begin_layout Standard
+Supersedes Algorithms II and III as the loss exercise.
+ Instead of merging the upper-bound partition (so that partitions are nested across 
+\begin_inset Formula $k$
+\end_inset
+
+),
+ rebuild the partition from scratch at every number of types 
+\begin_inset Formula $k=1,...,K$
+\end_inset
+
+ (
+\begin_inset Formula $K$
+\end_inset
+
+ the practical upper bound),
+ in the style of the C&P upper-bound algorithm.
+\end_layout
+
+\begin_layout Enumerate
+Fix 
+\begin_inset Formula $k$
+\end_inset
+
+.
+ Visit the observations in a random order (one randomized run).
+\end_layout
+
+\begin_layout Enumerate
+For each observation 
+\begin_inset Formula $i$
+\end_inset
+
+ and each existing group 
+\begin_inset Formula $G$
+\end_inset
+
+,
+ evaluate the placement of 
+\begin_inset Formula $i$
+\end_inset
+
+ in 
+\begin_inset Formula $G$
+\end_inset
+
+:
+ under CCEI,
+ the resulting group CCEI 
+\begin_inset Formula $e_{G\cup\{i\}}$
+\end_inset
+
+;
+ under Varian,
+ the largest multiplier 
+\begin_inset Formula $e_{i}$
+\end_inset
+
+ consistent with the group (existing members keep their multipliers).
+\end_layout
+
+\begin_layout Enumerate
+CCEI (max-min,
+ matching the reported statistic):
+ assign 
+\begin_inset Formula $i$
+\end_inset
+
+ to the placement maximizing the resulting 
+\emph on
+minimum
+\emph default
+ group CCEI,
+ breaking ties by the host group's resulting CCEI,
+ then its size,
+ then the lowest label;
+ while fewer than 
+\begin_inset Formula $k$
+\end_inset
+
+ groups are open,
+ starting a new group is scored as a candidate placement like any other (host CCEI 1,
+ other groups untouched).
+ This spreads violators across groups;
+ a marginal least-harm rule would instead funnel them into whichever group is already worst,
+ pinning the minimum near the pooled CCEI.
+\end_layout
+
+\begin_layout Enumerate
+Varian:
+ assign 
+\begin_inset Formula $i$
+\end_inset
+
+ to the group granting the highest 
+\begin_inset Formula $e_{i}$
+\end_inset
+
+,
+ ties toward the largest group,
+ then the lowest label;
+ if every existing group would grant 
+\begin_inset Formula $e_{i}<1$
+\end_inset
+
+ and fewer than 
+\begin_inset Formula $k$
+\end_inset
+
+ groups are open,
+ 
+\begin_inset Formula $i$
+\end_inset
+
+ starts a new group.
+ At 
+\begin_inset Formula $k=K$
+\end_inset
+
+ this reduces to the C&P practical upper-bound algorithm.
+\end_layout
+
+\begin_layout Enumerate
+Track each group's CCEI (respectively,
+ each observation's multiplier 
+\begin_inset Formula $e_{i}$
+\end_inset
+
+) through the assignment.
+ Report,
+ for each 
+\begin_inset Formula $k$
+\end_inset
+
+:
+ the 
+\emph on
+minimum
+\emph default
+ group CCEI — the common efficiency level at which every group passes 
+\begin_inset Formula $e$
+\end_inset
+
+-GARP — or the simple average of the 
+\begin_inset Formula $e_{i}$
+\end_inset
+
+ across all observations.
+ (Optionally the Varian multipliers can be re-optimized per group at the end:
+ exact via the Demuynck-Rehbeck MILP for small groups,
+ coordinate ascent for medium ones.)
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Properties and object of interest
+\end_layout
+
+\begin_layout Itemize
+Graph of rationality (minimum group CCEI or average Varian multiplier,
+ y axis) against the number of types (x axis),
+ weakly monotonically increasing.
+\end_layout
+
+\begin_layout Itemize
+The saved upper-bound partition is scored as a candidate at 
+\begin_inset Formula $k=K$
+\end_inset
+
+,
+ so the schedule ends at exactly full rationality.
+\end_layout
+
+\begin_layout Itemize
+Partitions are not nested across 
+\begin_inset Formula $k$
+\end_inset
+
+:
+ each 
+\begin_inset Formula $k$
+\end_inset
+
+ is rebuilt from scratch.
+\end_layout
+
+\begin_layout Itemize
+Monotonicity by construction:
+ a partition into fewer than 
+\begin_inset Formula $k$
+\end_inset
+
+ groups is feasible when 
+\begin_inset Formula $k$
+\end_inset
+
+ are allowed,
+ so whenever the greedy result at 
+\begin_inset Formula $k$
+\end_inset
+
+ is worse than at 
+\begin_inset Formula $k-1$
+\end_inset
+
+,
+ the 
+\begin_inset Formula $k-1$
+\end_inset
+
+ partition is carried forward.
 \end_layout
 
 \end_body

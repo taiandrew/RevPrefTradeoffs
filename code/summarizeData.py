@@ -2,8 +2,8 @@
 of Crawford & Pendakur (2013, EJ) minus the demographic material.
 
 Loads the household-level milk types, prices, quantities and upper-bound
-partitions produced by imputePrices.py / runClustering.py, and for each
-analysis sample ('all' and 'multi') emits:
+partitions produced by imputePrices.py / runClustering.py, and for the
+analysis sample ('all') emits:
 
 - tables/summary_{sample}.tex (C&P Table 1): budget shares, total expenditure
   and prices, each summarised by Mean, Min, Max and SD;
@@ -45,8 +45,7 @@ os.chdir(working_dir)
 # Readable labels for the usdafoodcat4 milk categories, in fat-content order
 MILK_LABELS = {1002: 'Whole', 1004: '2\\%', 1006: '1\\%', 1008: 'Skim'}
 
-SAMPLES = [('all', 'all households with valid milk purchases', 1),
-           ('multi', 'households purchasing multiple milk types', 2)]
+SAMPLES = [('all', 'all households with valid milk purchases', 1)]
 
 STAT_COLS = ['Mean', 'Min', 'Max', 'SD']
 

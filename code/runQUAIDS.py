@@ -1,8 +1,8 @@
 """Estimates a group-specific QUAIDS on each GARP-consistent group.
 
 Loads the household-level price and quantity dataframes produced by
-imputePrices.py and the best upper-bound partitions saved by runClustering.py
-(columns group_all and group_multi of milk_partitions.parquet), and runs the
+imputePrices.py and the best upper-bound partition saved by runClustering.py
+(column group_all of milk_partitions.parquet), and runs the
 QUAIDS estimation of quaids.py on each group, as in Section 5 of the paper.
 Groups too small to estimate are skipped (the paper drops its 8-observation
 group; the model has 15 free parameters across 3 equations for K=4 goods).
@@ -45,8 +45,7 @@ partitions = pd.read_parquet('working_data/milk_partitions.parquet')
 
 results = {}
 
-for sample, label in [('all', 'All households'),
-                      ('multi', 'Multiple-milk-type households')]:
+for sample, label in [('all', 'All households')]:
     groups = partitions[f'group_{sample}'].dropna()
     print(f"\n=== {label}: {len(groups)} households in "
           f"{groups.nunique()} groups ===")

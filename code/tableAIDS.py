@@ -3,7 +3,7 @@ LaTeX tables akin to Crawford & Pendakur (2013) Table 3.
 
 For each (reduction method, number of types) in CONFIGS, estimates AIDS
 (quaids.py, quadratic=False) on each type of that type reduction
-(typeReduction{CCEI,Varian}.py / runReduction.py) for the chosen sample, plus
+(the retired merge-based reduction, now code/tags/runReduction.py) for the chosen sample, plus
 a pooled row estimated on all sample households. Tabulates the two panels C&P
 report -- levels a^j and expenditure semi-elasticities b^j -- with standard
 errors, omitting the price matrix. Prices and expenditure use a common median
@@ -36,12 +36,11 @@ os.chdir(working_dir)
 
 from quaids import quaids
 
-SAMPLE = 'all'                          # 'all' or 'multi'
+SAMPLE = 'all'
 CONFIGS = [('ccei', 8), ('varian', 5)]  # (reduction method, number of types)
 
 METHOD_NAMES = {'ccei': 'CCEI', 'varian': 'Varian'}
-SAMPLE_NAMES = {'all': 'all households',
-                'multi': 'multiple-milk-type households'}
+SAMPLE_NAMES = {'all': 'all households'}
 
 # Readable labels for the usdafoodcat4 milk categories, in fat-content order
 MILK_LABELS = {1002: 'Whole', 1004: '2\\%', 1006: '1\\%', 1008: 'Skim'}

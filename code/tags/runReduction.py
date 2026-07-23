@@ -1,5 +1,9 @@
 """Runs the type-reduction analysis on the milk data.
 
+SUPERSEDED by runSchedule.py: the loss exercise now rebuilds the partition
+from scratch at every number of types (typeSchedule.py) instead of greedily
+merging the upper-bound partition. Kept for comparison.
+
 Loads the household-level price and quantity dataframes produced by
 imputePrices.py and the best upper-bound partitions saved by runClustering.py,
 and traces the distortion curve of number of types against total

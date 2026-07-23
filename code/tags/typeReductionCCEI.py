@@ -26,35 +26,13 @@ minimal loss at each k.
 import numpy as np
 import pandas as pd
 
-from garp import cross_expenditure, satisfies_garp
+from garp import ccei_subset, cross_expenditure
 
 
 def _ccei_idx(E: np.ndarray, idx: np.ndarray) -> float:
     """CCEI of the observations ``idx``, given the full cross-expenditure
     matrix E. Same flip-point search as ccei.ccei, on the subset."""
-    sub = E[np.ix_(idx, idx)]
-    diag = np.diag(sub)
-    if (diag <= 0).any():
-        raise ValueError("every observation must have positive expenditure")
-
-    if satisfies_garp(sub):
-        return 1.0
-
-    ratios = sub / diag[:, None]
-    off_diag = ratios[~np.eye(len(sub), dtype=bool)]
-    candidates = np.unique(off_diag[(off_diag > 0) & (off_diag < 1)])
-    bounds = np.concatenate(([0.0], candidates, [1.0]))
-
-    lo, hi = 0, len(bounds) - 2
-    if not satisfies_garp(sub, efficiency=(bounds[0] + bounds[1]) / 2):
-        return 0.0
-    while lo < hi:
-        mid = (lo + hi + 1) // 2
-        if satisfies_garp(sub, efficiency=(bounds[mid] + bounds[mid + 1]) / 2):
-            lo = mid
-        else:
-            hi = mid - 1
-    return float(bounds[lo + 1])
+    return ccei_subset(E, idx)
 
 
 def type_reduction_ccei(quantities: pd.DataFrame, prices: pd.DataFrame,

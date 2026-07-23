@@ -49,8 +49,7 @@ partitions = pd.read_parquet('working_data/milk_partitions.parquet')
 
 results = {}
 
-for sample, label in [('all', 'All households'),
-                      ('multi', 'Multiple-milk-type households')]:
+for sample, label in [('all', 'All households')]:
     groups = partitions[f'group_{sample}'].dropna()
     print(f"\n=== {label}: {len(groups)} households in "
           f"{groups.nunique()} groups ===")

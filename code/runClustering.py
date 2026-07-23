@@ -3,17 +3,15 @@
 Loads the household-level price and quantity dataframes produced by
 imputePrices.py and runs N_ITER random-order iterations of the practical
 lower and upper bound algorithms (the bounds are the max of the lower bounds
-and the min of the upper bounds across iterations), for:
+and the min of the upper bounds across iterations) on the analysis sample:
+all households with valid milk purchases (num_milk_types >= 1; households
+whose purchases have no valid gram quantities are all-zero bundles that
+carry no revealed-preference information and are excluded).
 
-1. all households with valid milk purchases (num_milk_types >= 1; households
-   whose purchases have no valid gram quantities are all-zero bundles that
-   carry no revealed-preference information and are excluded), and
-2. households who purchase multiple types of milk (num_milk_types >= 2).
-
-Saves the best (fewest-groups) upper-bound partition for each sample to
+Saves the best (fewest-groups) upper-bound partition to
 working_data/milk_partitions.{parquet,csv}: index = hhnum over all milk
-households, columns group_all and group_multi with integer group labels
-(NaN for households not in that sample).
+households, column group_all with integer group labels (NaN for households
+outside the sample).
 """
 
 #%% Preamble
@@ -46,7 +44,6 @@ num_milk_types = pd.read_parquet(
 
 samples = {
     'all': num_milk_types[num_milk_types >= 1].index,
-    'multi': num_milk_types[num_milk_types >= 2].index,
 }
 
 
@@ -78,8 +75,7 @@ for name, hhs in samples.items():
 #%% Save best upper-bound partitions
 
 partitions = pd.DataFrame(
-    {'group_all': best_partitions['all'],
-     'group_multi': best_partitions['multi']},
+    {'group_all': best_partitions['all']},
     index=num_milk_types.index,
 ).astype('Int64')
 partitions.index.name = 'hhnum'
