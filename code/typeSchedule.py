@@ -180,7 +180,9 @@ class _VarianGroup:
         self.R, self.P0 = _build_caches(E, self.members,
                                         _SHRINK * self.e_vec)
 
-    def evaluate(self, i, best_dl):
+    def evaluate(self, i):
+        """Largest multiplier e_i consistent with the group (existing
+        members keep theirs); returns (1 - e_i, payload)."""
         E, mem = self.E, self.members
         diag = E[mem, mem]
         col, row = E[mem, i], E[i, mem]
@@ -288,7 +290,7 @@ def _choose_varian(groups, i):
         # group can win the tie
         if best is not None and best[0] == 0.0:
             break
-        dl, payload = g.evaluate(i, None)
+        dl, payload = g.evaluate(i)
         cand = (dl, neg_size, label, g, payload)
         if best is None or cand[:3] < best[:3]:
             best = cand

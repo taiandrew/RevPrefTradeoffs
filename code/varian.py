@@ -4,9 +4,11 @@ Varian's (1990) refinement of the Afriat/CCEI index gives every observation
 its own efficiency multiplier e_t in [0, 1], relaxing the direct revealed
 preference relation to x^t R0 x^s iff e_t * (p^t . x^t) >= p^t . x^s. The
 index maximizes the average of the e_t subject to the data satisfying GARP
-under the relaxed relations. It equals 1 for GARP-consistent data, is never
-below the CCEI (which constrains all multipliers to be equal), and relates to
-the loss in notes.lyx by L_Varian(G) = |G| * (1 - average index).
+under the relaxed relations. It equals 1 for GARP-consistent data and is
+never below the CCEI (which constrains all multipliers to be equal). In the
+type schedule (typeSchedule.py) the average multiplier is the reported
+Varian rationality; the schedule tracks its own greedy multipliers and uses
+this module's exact MILP / ascent only for the optional refine step.
 
 Computing the index is NP-hard, and no constant-factor polynomial-time
 approximation exists unless P = NP (Smeulders, Spieksma, Cherchye & De Rock
