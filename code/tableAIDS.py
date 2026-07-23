@@ -39,9 +39,9 @@ from quaids import quaids
 
 SAMPLE = 'all'
 # (schedule measure, number of types): the smallest k whose rationality
-# reaches 0.90 on each schedule (CCEI: min group CCEI 0.928 at k=11;
-# Varian: average multiplier 0.905 at k=2)
-CONFIGS = [('ccei', 11), ('varian', 2)]
+# reaches 0.90 on the CCEI schedule (min group CCEI 0.928 at k=11) and
+# 0.95 on the Varian schedule (average multiplier 0.955 at k=3)
+CONFIGS = [('ccei', 11), ('varian', 3)]
 
 METHOD_NAMES = {'ccei': 'CCEI', 'varian': 'Varian'}
 SAMPLE_NAMES = {'all': 'all households'}
