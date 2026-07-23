@@ -1,9 +1,10 @@
 """AIDS levels and expenditure semi-elasticities by reduced type, formatted as
 LaTeX tables akin to Crawford & Pendakur (2013) Table 3.
 
-For each (reduction method, number of types) in CONFIGS, estimates AIDS
-(quaids.py, quadratic=False) on each type of that type reduction
-(the retired merge-based reduction, now code/tags/runReduction.py) for the chosen sample, plus
+For each (schedule measure, number of types) in CONFIGS, estimates AIDS
+(quaids.py, quadratic=False) on each type of the rationality schedule's
+partition at that k (milk_schedule_{method}_{sample}.parquet, produced by
+runScheduleCCEI.py / runScheduleVarian.py) for the chosen sample, plus
 a pooled row estimated on all sample households. Tabulates the two panels C&P
 report -- levels a^j and expenditure semi-elasticities b^j -- with standard
 errors, omitting the price matrix. Prices and expenditure use a common median
@@ -14,10 +15,10 @@ A milk type that no household in a group ever purchases has an identically
 zero budget share; AIDS for that group is estimated on the goods it does buy
 and the absent good is reported as 0.000 (--).
 
-Caveat: unlike C&P's upper-bound groups, the reduced types are the
-parsimonious partition and are not perfectly rationalisable (merging incurs
-efficiency loss), so within-type residuals mix specification error with
-residual preference heterogeneity.
+Caveat: unlike C&P's upper-bound groups, the schedule's types at k < k_max
+are not perfectly rationalisable (the schedule trades rationality for
+parsimony), so within-type residuals mix specification error with residual
+preference heterogeneity.
 
 Outputs tables/aids_types_{method}_{sample}.tex (requires \\usepackage{booktabs}).
 """
@@ -37,7 +38,7 @@ os.chdir(working_dir)
 from quaids import quaids
 
 SAMPLE = 'all'
-CONFIGS = [('ccei', 8), ('varian', 5)]  # (reduction method, number of types)
+CONFIGS = [('ccei', 8), ('varian', 5)]  # (schedule measure, number of types)
 
 METHOD_NAMES = {'ccei': 'CCEI', 'varian': 'Varian'}
 SAMPLE_NAMES = {'all': 'all households'}
@@ -144,9 +145,9 @@ type ({SAMPLE_NAMES[SAMPLE]}, {n_types} types). Standard errors in parentheses;
 os.makedirs('tables', exist_ok=True)
 
 for method, n_types in CONFIGS:
-    reduction = pd.read_parquet(
-        f'working_data/milk_reduction_{method}_{SAMPLE}.parquet')
-    types = reduction[f'k{n_types}'].dropna().astype(int)
+    schedule = pd.read_parquet(
+        f'working_data/milk_schedule_{method}_{SAMPLE}.parquet')
+    types = schedule[f'k{n_types}'].dropna().astype(int)
     order = (types.value_counts()
              .sort_index(kind='stable')
              .sort_values(ascending=False, kind='stable'))

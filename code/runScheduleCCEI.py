@@ -31,8 +31,8 @@ os.chdir(working_dir)
 
 from typeSchedule import type_schedule
 
-N_RESTARTS = 2
-SEED = 42
+N_RESTARTS = 5
+SEED = 2026
 SAMPLE, SAMPLE_LABEL = 'all', 'All households'
 
 

@@ -393,8 +393,8 @@ I apply this method to data from the USDA,
  many of these types contain very few households.
  I thus construct a schedule between the number of types and rationality:
  for each number of types,
- households are partitioned into that many groups by a greedy algorithm that assigns each household to the group where it does the least harm to rationality,
- measured by either the Critical Cost Efficiency Index (CCEI) or the Varian index (cf.
+ households are partitioned into that many groups by a greedy algorithm that places each household so as to keep the partition as rational as possible,
+ with rationality measured by either the Critical Cost Efficiency Index (CCEI) or the Varian index (cf.
  
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -412,8 +412,8 @@ literal "false"
 \end_inset
 
 ).
- Using Varian's rule-of-thumb of 95% rationality as essentially rational,
- we can reduce the number of types by half.
+ The schedule makes the tradeoff explicit:
+ sacrificing a modest amount of rationality (interpretable as unmodeled individual heterogeneity) supports far fewer types.
  My method thus offers intermediate options between two extremes – assuming all households have the same underlying utility;
  or requiring full rationality.
  By sacrificing a modest amount of rationality (interpretable as requiring individual heterogeneity),
@@ -1753,7 +1753,7 @@ For each number of types
 
  groups directly,
  in the style of Crawford and Pendakur's upper bound algorithm.
- Households are visited in a random order (the best of two orders is kept),
+ Households are visited in a random order (the best of five orders is kept),
  and each is placed to maximize the resulting 
 \emph on
 minimum
@@ -1782,6 +1782,287 @@ minimum
  The schedule is weakly increasing in the number of types by construction,
  since a partition into fewer groups remains available when more types are allowed.
  Lower rationality is interpretable as requiring more individual heterogeneity to rationalize the data.
+ Algorithm 3 summarizes the procedure;
+ the Varian variant differs only in the placement rule and reported statistic,
+ as described below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithm}[H]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Type schedule by greedy assignment (shown for the CCEI measure)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{alg:schedule}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Require Observations $I=
+\backslash
+{1,
+\backslash
+ldots,n
+\backslash
+}$; maximum types $K$; restarts $R$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+Ensure Rationality schedule $
+\backslash
+rho(k)$ and a partition for each $k$
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{$k=1,
+\backslash
+ldots,K$}
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+For{$r=1,
+\backslash
+ldots,R$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State Draw a random ordering $(i_1,
+\backslash
+ldots,i_n)$ of $I$; $
+\backslash
+mathcal{G} 
+\backslash
+gets 
+\backslash
+varnothing$
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+For{$t=1,
+\backslash
+ldots,n$}
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State For each $G
+\backslash
+in
+\backslash
+mathcal{G}$, compute $e_{G
+\backslash
+cup
+\backslash
+{i_t
+\backslash
+}}$, the CCEI of $G$ with $i_t$ added
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+If{$|
+\backslash
+mathcal{G}|<k$}
+\end_layout
+
+\begin_layout Plain Layout
+
+                
+\backslash
+State also score a new group $
+\backslash
+{i_t
+\backslash
+}$ (its CCEI is $1$; other groups unchanged)
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+State Place $i_t$ to maximize the resulting minimum group CCEI, breaking ties
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\backslash
+Statex 
+\backslash
+hspace{
+\backslash
+algorithmicindent}
+\backslash
+hspace{
+\backslash
+algorithmicindent}
+\backslash
+hspace{
+\backslash
+algorithmicindent} by the receiving group's resulting CCEI, then its size
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+rho_r 
+\backslash
+gets 
+\backslash
+min_{G
+\backslash
+in
+\backslash
+mathcal{G}} e_G$
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State $
+\backslash
+rho(k) 
+\backslash
+gets 
+\backslash
+max_r 
+\backslash
+rho_r$, keeping the corresponding partition
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+State At $k=K$, also score the partition from Algorithm 2 ($
+\backslash
+rho=1$)
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+If{$k>1$ and $
+\backslash
+rho(k)<
+\backslash
+rho(k-1)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\backslash
+State $
+\backslash
+rho(k)
+\backslash
+gets
+\backslash
+rho(k-1)$ and reuse the $k-1$ partition
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithm}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
