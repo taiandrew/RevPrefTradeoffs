@@ -38,7 +38,10 @@ os.chdir(working_dir)
 from quaids import quaids
 
 SAMPLE = 'all'
-CONFIGS = [('ccei', 8), ('varian', 5)]  # (schedule measure, number of types)
+# (schedule measure, number of types): the smallest k whose rationality
+# reaches 0.90 on each schedule (CCEI: min group CCEI 0.928 at k=11;
+# Varian: average multiplier 0.905 at k=2)
+CONFIGS = [('ccei', 11), ('varian', 2)]
 
 METHOD_NAMES = {'ccei': 'CCEI', 'varian': 'Varian'}
 SAMPLE_NAMES = {'all': 'all households'}
