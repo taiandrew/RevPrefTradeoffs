@@ -46,8 +46,7 @@ n_households = sizes['partition_size'].sum()
 
 plt.figure(figsize=(5, 3.5))
 sns.barplot(data=sizes, x=f'group_{SAMPLE}', y='partition_size')
-plt.title('Group Sizes, total = {}'.format(n_households))
-plt.xlabel('Group')
+plt.xlabel('Type')
 plt.ylabel('Number of Households')
 plt.xticks()
 plt.tight_layout()
@@ -57,8 +56,8 @@ print("Saved graphs/group_sizes.png")
 
 # %% Rationality schedules (the product)
 
-Y_LABELS = {'ccei': 'Minimum group CCEI',
-            'varian': 'Average Varian multiplier'}
+Y_LABELS = {'ccei': 'Minimum CCEI',
+            'varian': 'Varian index'}
 
 for method, ylabel in Y_LABELS.items():
     path = f'working_data/schedule_loss_{method}_{SAMPLE}.csv'
@@ -69,13 +68,12 @@ for method, ylabel in Y_LABELS.items():
     schedule = pd.read_csv(path, index_col='k')
 
     fig, ax = plt.subplots(figsize=(5, 3.5))
-    ax.plot(schedule.index, schedule['rationality'], marker='o')
+    sns.lineplot(x=schedule.index, y=schedule['rationality'],
+                 marker='o', ax=ax)
     ax.set_xlabel('Number of types')
     ax.set_ylabel(ylabel)
     ax.set_ylim(0, 1.02)
     ax.set_xticks(schedule.index)
-    ax.set_title(f'Rationality by number of types '
-                 f'({method.upper()}, {SAMPLE_LABEL})')
     fig.tight_layout()
     filename = f'schedule_rationality_{method}_{SAMPLE}.png'
     fig.savefig(f'graphs/{filename}', dpi=150)
