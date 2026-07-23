@@ -44,12 +44,13 @@ sizes = partitions.groupby(f'group_{SAMPLE}').agg(
 
 n_households = sizes['partition_size'].sum()
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(5, 3.5))
 sns.barplot(data=sizes, x=f'group_{SAMPLE}', y='partition_size')
 plt.title('Group Sizes, total = {}'.format(n_households))
 plt.xlabel('Group')
 plt.ylabel('Number of Households')
 plt.xticks()
+plt.tight_layout()
 plt.savefig('graphs/group_sizes.png', dpi=300)
 plt.close()
 print("Saved graphs/group_sizes.png")
@@ -67,7 +68,7 @@ for method, ylabel in Y_LABELS.items():
         continue
     schedule = pd.read_csv(path, index_col='k')
 
-    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    fig, ax = plt.subplots(figsize=(5, 3.5))
     ax.plot(schedule.index, schedule['rationality'], marker='o')
     ax.set_xlabel('Number of types')
     ax.set_ylabel(ylabel)
