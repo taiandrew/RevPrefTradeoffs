@@ -30,7 +30,7 @@ working_dir = os.path.dirname(script_dir)
 os.chdir(working_dir)
 
 os.makedirs('graphs', exist_ok=True)
-sns.set_theme(style='whitegrid')
+sns.set_theme(style='whitegrid', font_scale=0.75)
 
 SAMPLE, SAMPLE_LABEL = 'all', 'All households'
 
@@ -44,7 +44,7 @@ sizes = partitions.groupby(f'group_{SAMPLE}').agg(
 
 n_households = sizes['partition_size'].sum()
 
-plt.figure(figsize=(5, 3.5))
+plt.figure(figsize=(4, 2.75))
 sns.barplot(data=sizes, x=f'group_{SAMPLE}', y='partition_size')
 plt.xlabel('Type')
 plt.ylabel('Number of Households')
@@ -67,7 +67,7 @@ for method, ylabel in Y_LABELS.items():
         continue
     schedule = pd.read_csv(path, index_col='k')
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=(4, 2.75))
     sns.lineplot(x=schedule.index, y=schedule['rationality'],
                  marker='o', ax=ax)
     ax.set_xlabel('Number of types')
