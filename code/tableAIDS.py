@@ -69,8 +69,17 @@ exp_median = (prices.loc[sample_idx] * quantities.loc[sample_idx]) \
 def estimate_row(label, member_idx):
     """Estimate AIDS on the given households and return a table-row dict.
     A never-bought good has a constant zero share and is dropped from the
-    estimation, then reported as 0.000 (--)."""
+    estimation, then reported as 0.000 (--). Groups with no more
+    observations than regressors (the schedule can isolate a handful of
+    hard-to-rationalize households into tiny types) are reported with
+    their size only."""
     bought = [c for c in goods if (quantities.loc[member_idx, c] > 0).any()]
+    if len(member_idx) <= len(bought) + 2:  # alpha + gammas + beta
+        print(f"\n--- {label} ({len(member_idx)} households): too small "
+              "to estimate, reporting size only ---")
+        return {'label': label, 'N': len(member_idx),
+                **{f'{c}_{good}': None for good in goods
+                   for c in ('alpha', 'alpha_se', 'beta', 'beta_se')}}
     print(f"\n--- {label} ({len(member_idx)} households, goods {bought}) ---")
     res = quaids(quantities.loc[member_idx, bought],
                  prices.loc[member_idx, bought], quadratic=False,
@@ -98,7 +107,7 @@ pooled_row = estimate_row('Pooled', sample_idx)
 #%% LaTeX rendering (two panels, C&P Table 3 style)
 
 def _coef(v):
-    return f'{v:.3f}'
+    return '--' if v is None else f'{v:.3f}'
 
 
 def _se(v):
@@ -163,8 +172,10 @@ for method, n_types in CONFIGS:
 
     preview = pd.DataFrame([
         {'Type': r['label'], 'N': r['N'],
-         **{f'a_{g}': round(r[f'alpha_{g}'], 3) for g in goods},
-         **{f'b_{g}': round(r[f'beta_{g}'], 3) for g in goods}}
+         **{f'a_{g}': None if r[f'alpha_{g}'] is None
+            else round(r[f'alpha_{g}'], 3) for g in goods},
+         **{f'b_{g}': None if r[f'beta_{g}'] is None
+            else round(r[f'beta_{g}'], 3) for g in goods}}
         for r in rows])
     print(f"\nAIDS by {METHOD_NAMES[method]}-reduced type "
           f"({SAMPLE_NAMES[SAMPLE]}, {n_types} types):")
