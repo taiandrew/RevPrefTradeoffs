@@ -1,5 +1,8 @@
 """(Quadratic) almost ideal demand system estimation via iterated SUR.
 
+Only the AIDS branch (``quadratic=False``) is in active use, by runAIDS.py
+and tableAIDS.py; the QUAIDS driver is retired to code/tags/runQUAIDS.py.
+
 Implements the demand system of Banks, Blundell and Lewbel (1997) as estimated
 in Crawford & Pendakur (2013, EJ, Section 5). Budget shares for goods
 j = 1..K and observations i = 1..N are
