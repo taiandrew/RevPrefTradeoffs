@@ -1890,6 +1890,47 @@ critical cost efficiency index
 .
 \end_layout
 
+\begin_layout Definition
+For a vector 
+\begin_inset Formula $e=(e_{1},...,e_{N})\in[0,1]^{N}$
+\end_inset
+
+,
+ define the relaxed relations 
+\begin_inset Formula $x_{i}R_{e}^{0}x$
+\end_inset
+
+ if 
+\begin_inset Formula $e_{i}\,p_{i}\cdot x_{i}\geq p_{i}\cdot x$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{i}P_{e}^{0}x$
+\end_inset
+
+ if 
+\begin_inset Formula $e_{i}\,p_{i}\cdot x_{i}>p_{i}\cdot x$
+\end_inset
+
+,
+ so that each observation carries its own efficiency multiplier.
+ The 
+\emph on
+Varian index
+\emph default
+ is 
+\begin_inset Formula $\sup\{\frac{1}{N}\sum_{i}e_{i}:\text{the data satisfy GARP under }(R_{e},P_{e}^{0})\}$
+\end_inset
+
+.
+ Setting 
+\begin_inset Formula $e_{1}=\cdots=e_{N}$
+\end_inset
+
+ recovers the CCEI,
+ so the Varian index is never below it.
+\end_layout
+
 \begin_layout Standard
 I now turn to my proposed algorithm,
  which produces a schedule between the number of types and rationality.
